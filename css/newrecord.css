@@ -1,0 +1,51 @@
+.acti, .eval{
+	    color:#f79393;
+	    font-style: italic;
+	    font-size:11px;
+  	}
+#name-type{float:left;list-style:none;margin-top:-3px;padding:0;width:350px;position: absolute; z-index:100;}
+#name-type li:hover {
+    background: #28422c;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+}
+#name-type li {
+    padding: 5px;
+    background-color: #b5e8bb;
+    border-bottom: #bbb9b9 1px solid;
+    border-radius: 10px;
+}
+#search-type{padding: 10px;border: #a8d4b1 1px solid;border-radius:4px;}
+#search-location{padding: 10px;border: #a8d4b1 1px solid;border-radius:4px;}
+.search{
+  color:green;
+  font-weight: bold;
+}
+.remove_filter{
+  color:red;
+  font-style: italic;
+  font-size:12px;
+}
+.form-control-radio {
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+.err_msg{
+    color:red;
+    font-size: 12px;
+    font-style:italic;
+}
