@@ -8,6 +8,11 @@
     }
     $usertype=$_SESSION['usertype'];
     $userid=$_SESSION['userid'];
+
+    /*function clean($string) {
+	   $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
+	   return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+	}*/
 ?>
 <link href="css/view_details.css" rel="stylesheet">
 <body>
@@ -137,7 +142,7 @@
 									<tr>
 										<td colspan="2">
 											<p class="p_remarks"> 
-												<span><?php $notes = str_replace("-", "<br>-", $row['remarks']); 
+												<span><?php $notes = str_replace("*", "<br>*", $row['remarks']); 
 												echo $notes;?></span> 
 											</p>
 										</td>
@@ -178,6 +183,9 @@
 		                            	</div>
 		                            <?php } $cc++; } ?>
 		                            <div class="modal " id="mode">
+		                            	<!-- <center>
+		                            		<input class="btn btn-success btn-sm" type="button" value="Print Image"  onclick="printImg()" />
+		                            	</center> -->
 	                                    <a class="prev" id="show-previous-image" style="text-decoration: none;" onclick="plusSlides(-1)">Previous</a>
 	                                    <a id="show-next-image" class="next" style="text-decoration: none;" onclick="plusSlides(1)">Next</a>
 	                                    <div class="modal-dialog" onclick="closeModal()">
@@ -197,21 +205,23 @@
 								                      $att=explode(".",$row2['attach_file']);
 								                      $upload_att = $att[1];
 								                  	?>
-	                                                
-	                                            
+
 	                                            <div class="mySlides">
-	                                            	<h4 class="numbertext" style="font-weight: 600; font-size: 15px"><?php echo $aa.'/'.$bb ?>&nbsp-&nbsp<?php echo $row2['attach_file'];?></h4>
-	                                                <img src="<?php 
-								                      if (empty($row2['attach_file'])){
-								                          echo 'upload/necs/gallery-icon-67820.png'; 
-								                      } else{
-								                         if($upload_att == 'jpg' || $upload_att == 'png' || $upload_att == 'jpeg'  || $upload_att == 'PNG' || $upload_att == 'PNG' || $upload_att == 'JPG' || $upload_att == 'JPEG'){
-								                            echo 'upload/'. $row2['attach_file']; 
-								                           } else {
-								                            echo "upload/files.png";
-								                           }
-								                      }
-								                  ?>" style="width:100%">
+	                                            	<h4 class="numbertext" style="font-weight: 600; font-size: 15px"><?php echo $aa.'/'.$bb ?>&nbsp-&nbsp<?php echo $row2['attach_file'];?> </h4>
+	                                            	<div >
+	                                            		<a class="btn btn-success btn-sm" type="button" target="_blank" href = '<?php echo 'upload/'. $row2['attach_file']; ?>'>Print Image</a>
+		                                                <img id="mainImg" src="<?php 
+									                      if (empty($row2['attach_file'])){
+									                          echo 'upload/necs/gallery-icon-67820.png'; 
+									                      } else{
+									                         if($upload_att == 'jpg' || $upload_att == 'png' || $upload_att == 'jpeg'  || $upload_att == 'PNG' || $upload_att == 'PNG' || $upload_att == 'JPG' || $upload_att == 'JPEG'){
+									                            echo 'upload/'. $row2['attach_file']; 
+									                           } else {
+									                            echo "upload/files.png";
+									                           }
+									                      }
+									                  ?>" style="width:100%">
+									              	</div>
 	                                            </div>
 	                                            <?php 
 								                  $aa++; 
@@ -268,5 +278,10 @@
 	  dots[slideIndex-1].className += " active";
 	  captionText.innerHTML = dots[slideIndex-1].alt;
 	}
+
+	function printImg() {
+		  pwin = window.open(document.getElementById("mainImg").src,"_blank");
+		  // pwin.onload = function () {window.print();}
+		}
 </script>
 </html>

@@ -1,10 +1,10 @@
 <?php 
 include 'includes/connection.php';
 date_default_timezone_set("Asia/Taipei");
-require_once 'C:\Users\Jonah\Dropbox\xampp\htdocs\EEFS\js\phpexcel\Classes\PHPExcel\IOFactory.php';
+require_once 'C:\xampp\htdocs\EEFS\js\phpexcel\Classes\PHPExcel\IOFactory.php';
 $objPHPExcel = new PHPExcel();
 
-$inputFileName = 'C:\Users\Jonah\Dropbox\xampp\htdocs\EEFS\upload\exported\export.xlsx';
+$inputFileName = 'C:\xampp\htdocs\EEFS\upload\exported\export.xlsx';
 try {
     $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
     $objReader = PHPExcel_IOFactory::createReader($inputFileType);
@@ -99,7 +99,7 @@ for($a=2;$a<=$highestRow;$a++){
 }
 
 
-$dir = 'C:\Users\Jonah\Dropbox\xampp\htdocs\EEFS\upload\emails';
+$dir = 'C:\xampp\htdocs\EEFS\upload\emails';
 $files1 = scandir($dir);
 
 $count= count($files1);
@@ -119,11 +119,11 @@ for($x=2;$x<$count;$x++){
     $ext=$f[1];
     $new_fn=$filename.'.'.$ext;
   
-    $fname = 'C:\Users\Jonah\Dropbox\xampp\htdocs\EEFS\upload\emails\/'.$files1[$x];
+    $fname = 'C:\xampp\htdocs\EEFS\upload\emails\/'.$files1[$x];
 
-    rcopy($fname , "C:\Users\Jonah\Dropbox\/xampp\htdocs\EEFS\upload\/".$new_fn);
+    rcopy($fname , "C:\/xampp\htdocs\EEFS\upload\/".$new_fn);
    
-    unlink("C:\Users\Jonah\Dropbox\/xampp\htdocs\EEFS\upload\/emails\/".$files1[$x]);
+    unlink("C:\/xampp\htdocs\EEFS\upload\/emails\/".$files1[$x]);
     
 
      $con->query("INSERT INTO document_attach (document_id, attach_file, attach_remarks) VALUES ('$doc', '$new_fn', 'Via Email')");

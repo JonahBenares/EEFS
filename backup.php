@@ -1,11 +1,12 @@
 <?php
 //include 'functions/functions.php';
-backup_tables('localhost','root','','db_filing');
+backup_tables('localhost','root','1t@dm1N','db_filing');
+
 $now=date('Y-m-d');
 
 $host='localhost';
 $user='root';
-$pass='';
+$pass='1t@dm1N';
 $name='db_filing';
 function backup_tables($host,$user,$pass,$name,$tables = '*')
 {
@@ -60,7 +61,7 @@ fwrite($handle,$return);
 
 
 $copysql='Back-up/db_backup/'.$data;
-rcopy($copysql , "C:\Users\/User\Dropbox\/Back-up\/db_backup\/".$data);
+rcopy($copysql , "C:\Onedrive_link\/EEFS October 2018\DB\/".$data);
 
 fclose($handle);
 
@@ -86,7 +87,6 @@ fclose($handle);
         if (is_dir ( $src )) {
             mkdir ( $dst );
             $files = scandir ( $src );
-
             foreach ( $files as $file )
                 if ($file != "." && $file != "..")
                     rcopy ( "$src/$file", "$dst/$file" );
@@ -94,35 +94,37 @@ fclose($handle);
             copy ( $src, $dst );
     }
 
+
+// Get real path for our folder
 $rootPath = realpath('upload');
 
+// Initialize archive object
 $zip = new ZipArchive();
 $fname = 'Back-up/uploads/'.date('m_d_Y').'.zip';
 $zip->open($fname, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
-
+// Create recursive directory iterator
+/** @var SplFileInfo[] $files */
 $files = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator($rootPath),
     RecursiveIteratorIterator::LEAVES_ONLY
 );
 
-
 foreach ($files as $name => $file)
 {
-    if ($file->isFile()) {
-     //echo "$name was last modified: -------- " . date ("Y-m-d", filemtime($name)) . "<br>";
-     $filedate = date ("Y-m-d", filemtime($name));
-     if($filedate==$now){
-   
+    // Skip directories (they would be added automatically)
+     if ($file->isFile()) {
+       
+        $filedate = date ("Y-m-d", filemtime($name));
+        if($filedate==$now){
             if (!$file->isDir())
             {
-               
+            // Get real and relative path for current file
+            $filePath = $file->getRealPath();
+            $relativePath = substr($filePath, strlen($rootPath) + 1);
 
-                $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($rootPath) + 1);
-
-            
-                $zip->addFile($filePath, $relativePath);
+            // Add current file to archive
+            $zip->addFile($filePath, $relativePath);
             }
         }
     }
@@ -131,9 +133,9 @@ foreach ($files as $name => $file)
 // Zip archive will be created only after closing object
 $zip->close();
 
-rcopy($fname , 'Back-up/uploads/'.$fname );
+//rcopy($fname , 'Back-up/uploads/'.$fname );
 $zipname=date('m_d_Y').'.zip';
-rcopy($fname , "C:\Users\User\Dropbox\Back-up\uploads\/".$zipname);
+rcopy($fname , "C:\Onedrive_link\/EEFS October 2018\Uploads\/".$zipname);
 
 
 //rrmdir($fname);

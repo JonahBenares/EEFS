@@ -339,7 +339,7 @@ function compAdd() {
                 <div class="form-group label-floating hr_nomarg2">
                     <label class="">Department</label>
                     <select class="form-control" name = "dept" >
-                         <option value = "" selected>-Select Department-</option>
+                         <option value = "" selected>-Select Department-</option>s
                          <?php while($fetchdept = $getdept->fetch_array()){ ?> 
                         <option value = "<?php echo $fetchdept['department_id']; ?>"><?php echo $fetchdept['department_name']; ?></option>
                         <?php } ?>

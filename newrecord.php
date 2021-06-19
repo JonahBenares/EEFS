@@ -81,8 +81,8 @@ if(isset($_GET['deleteattach'])){
             act = document.getElementById('p_acti1');
             fileact = act.files[0];
             if(typeof fileact !== 'undefined'){
-                if(fileact.size > 30000000){
-                document.getElementById("certBox1").innerHTML="Error: Picture size is too big. Max file size is 2mb.";
+                if(fileact.size > 500000000){
+                document.getElementById("certBox1").innerHTML="Error: Picture size is too big. Max file size is 50mb.";
                 counter_error++;
                 }
             }
@@ -92,8 +92,8 @@ if(isset($_GET['deleteattach'])){
     	        act = document.getElementById('p_acti'+x);
     	        fileact = act.files[0];
     	        if(typeof fileact !== 'undefined'){
-    	         	if(fileact.size > 30000000){
-    		          document.getElementById('certBox'+x).innerHTML="Error: Picture size is too big. Max file size is 2mb.";
+    	         	if(fileact.size > 500000000){
+    		          document.getElementById('certBox'+x).innerHTML="Error: Picture size is too big. Max file size is 50mb.";
     		          counter_error++;
     	          	}
     	       	}
@@ -295,7 +295,7 @@ $(document).ready(function(){
       });
  });
 
-   function selectType(val) {
+   	function selectType(val) {
         $("#doc_type").val(val);
         $("#suggestion-type").hide();
     }
@@ -462,7 +462,7 @@ $(document).ready(function(){
     	                                <div class="form-group label-floating ">
     	                                    <label class="control-label">Department:</label>
     	                                    
-    	                                    <select type="text" name = "department" id="department" class="form-control" style="width:100%" value = "">
+    	                                    <select type="text" name = "department" id="department" onchange="checksubject()" class="form-control" style="width:100%" value = "">
                                                 <option value = "" selected>-Select Department-</option>
     	                                    <?php while($fetch_dept = $get_dept->fetch_array()){ ?> 
 
@@ -482,9 +482,11 @@ $(document).ready(function(){
                                         </div>
                                         <?php } ?>
     									<div class="form-group label-floating">
-    	                                    <label class="control-label">Subject:</label>
-    	                                    <input type="text" name = "subject" id="subject" class="form-control" style="width:100%"  value="<?php echo (isset($_GET['docid']) ? $fetch_details['subject'] : ''); ?>" >
+    	                                    <label for="item_name" class="control-label">Subject:</label>
+    	                                    <input type="text" autocomplete="" onkeyup="checksubject()"  name = "subject" id="subject" class="form-control" style="width:100%"  value="<?php echo (isset($_GET['docid']) ? $fetch_details['subject'] : ''); ?>" >
                                              <div id='subj_msg' class='err_msg'></div>
+                                             <span id="subject-check"></span>
+                                             <span id="subject_msg" class='img-check'></span>
     	                                </div>                            
                                         <div class="form-group label-floating">
                                             <label class="control-label">Type of Document:</label>
@@ -594,7 +596,7 @@ $(document).ready(function(){
     								<div class="col-lg-12">
     									<div class="form-group label-floating">
     	                                    <label class="control-label">Remarks:</label>
-    	                                    <textarea type="text" rows="5" name = "remarks" id="remarks" class="form-control" style="width:100%" ><?php echo (isset($_GET['docid']) ? $fetch_details['remarks'] : ''); ?></textarea>
+    	                                    <textarea type="text" rows="20" name = "remarks" id="remarks" class="form-control" style="width:100%" ><?php echo (isset($_GET['docid']) ? $fetch_details['remarks'] : ''); ?></textarea>
     	                                </div>
     	                               <?php
     	                                    $sql2 = mysqli_query($con,"SELECT * FROM document_attach WHERE document_id = '$docid'");
@@ -759,4 +761,35 @@ if(res_ext =='jpg' || res_ext =='png' || res_ext =='jpeg' || res_ext =='JPG' || 
           }
      }
 }
+</script>
+<script> 
+    function checksubject() {
+        var subject = document.getElementById("subject").value;
+        var department = document.getElementById("department").value;
+        $.ajax({
+            type: "POST",
+            url: "search_subject.php",
+            data:"subject="+subject+"&department="+department,
+            success: function(output){
+                var output= output.trim();
+                if(output=='existing') {
+                    $("#subject-check").show();
+                    $("#subject-check").html("Warning: Subject is already existing!");
+                    $('input[type="button"]').attr('disabled','disabled');
+                    $('input[type="submit"]').attr('disabled','disabled');
+                    $("#subject-check").css("color","#f50000");
+                }else{
+                    $("#subject-check").hide();
+                    $('input[type="button"]').removeAttr('disabled');
+                    $('input[type="submit"]').removeAttr('disabled');
+                }
+
+                if(subject==''){
+                    $("#subject-check").hide();
+                    $('input[type="button"]').removeAttr('disabled');
+                    $('input[type="submit"]').removeAttr('disabled');
+                }
+            }
+        })
+    }
 </script>
