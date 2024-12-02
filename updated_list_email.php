@@ -37,7 +37,7 @@ function select_column_where($table, $column, $where, $value){
         $message.="<td style='border:1px solid;width:5%'><strong>Addressee Company</strong></td>";    
         $message.="<td style='border:1px solid;width:5%'><strong>Addressee Person</strong></td>";
 
-        $getData = mysqli_query($con,"SELECT * FROM document_info WHERE EXTRACT(MONTH FROM document_date) = 1 AND EXTRACT(YEAR FROM document_date) = 2018 ORDER BY document_date ASC");
+        $getData = mysqli_query($con,"SELECT * FROM document_info WHERE EXTRACT(MONTH FROM logged_date) = 1 AND EXTRACT(YEAR FROM logged_date) = 2018 ORDER BY logged_date ASC");
         $num_rows = mysqli_num_rows($getData);
 
          while($d = mysqli_fetch_array($getData)){
