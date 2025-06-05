@@ -45,6 +45,22 @@
 		<?php if($_SESSION['usertype'] == "Admin") { ?>
 			<li><a href="backup_data.php"><em class="fa fa-database">&nbsp;</em> Database</a></li>
 		<?php } ?>
+		<li class="parent"><a data-toggle="collapse" href="#reports">
+			<em class="fa fa-line-chart">&nbsp;</em> Reports <span data-toggle="collapse" href="#reports" class="icon pull-right"><em class="fa fa-plus"></em></span>
+			</a>
+			<ul class="children collapse" id="reports">
+				<li>
+					<a class="" href="summary_report.php">
+						<span class="fa fa-list">&nbsp;</span> Summary Report
+					</a>
+				</li>
+				<li>
+					<a class="" href="summary_annual.php">
+						<span class="fa fa-list">&nbsp;</span> Annual Summary
+					</a>
+				</li>
+			</ul>
+		</li>
 		<li><a href="logout.php"><em class="fa fa-power-off">&nbsp;</em> Logout</a></li>
 	</ul>
 </div>
