@@ -49,7 +49,7 @@
                                 <!-- Rest of the form, initially hidden -->
                                 <div id="filter_fields" style="display:none;" class="row w-100 mt-2">
                                     <!-- Annual Inputs -->
-                                    <div class="col-sm-2 annual-group">
+                                    <!-- <div class="col-sm-2 annual-group">
                                         <label for="month" class="form-label">Month</label>
                                         <select id="month" class="form-control" style="height:34px!important">
                                             <option value="">Select Month</option>
@@ -66,12 +66,12 @@
                                             <option value="11">November</option>
                                             <option value="12">December</option>
                                         </select>
-                                    </div>
-                                    <div class="col-sm-2 annual-group">
+                                    </div> -->
+                                    <div class="col-sm-3 annual-group">
                                         <label for="year_from" class="form-label">Year From</label>
                                         <input type="number" id="year_from" min="2014" max="2099" step="1" placeholder="YYYY" class="form-control" style="height:34px!important" />
                                     </div>
-                                    <div class="col-sm-2 annual-group">
+                                    <div class="col-sm-3 annual-group">
                                         <label for="year_to" class="form-label">Year To</label>
                                         <input type="number" id="year_from" min="2014" max="2099" step="1" placeholder="YYYY" class="form-control" style="height:34px!important" />
                                     </div>
