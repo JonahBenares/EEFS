@@ -67,7 +67,7 @@ $department = isset($_POST['department']) ? $_POST['department'] : '';
             $exportForm = "
                 <form action='export_summary_excel.php' method='post' style='display:inline-block; margin-left:10px;'>
                     <input type='hidden' name='export_excel' value='1'>
-                    <button type='  ' class='btn btn-success btn-sm'>Export to Excel</button>
+                    <button type='' class='btn btn-success btn-sm'>Export to Excel</button>
                 </form>";
         }
 
