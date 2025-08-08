@@ -80,6 +80,7 @@ $department = isset($_POST['department']) ? $_POST['department'] : '';
                             $filterBadges
                             <a href='summary_annual.php' class='ms-auto text-decoration-underline text-white'>Clear Filter</a>
                             $exportForm
+                            <a href='export_summary_excel.php' class='ms-auto text-decoration-underline text-white'></a>
                         </div>
                     </div>
                 </div>
