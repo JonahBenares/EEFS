@@ -68,7 +68,7 @@ function showAppliedFilters($con, $filter_type, $year_from, $year_to, $date_from
     $exportForm = '';
     if (!empty($_SESSION['export_data'])) {
         $exportForm = "
-            <form action='export_summary_excel.php' method='post' style='display:inline-block; margin-left:10px;'>
+            <form action='export_summary_report_excel.php' method='post' style='display:inline-block; margin-left:10px;'>
                 <input type='hidden' name='export_excel' value='1'>
                 <button type='' class='btn btn-success btn-sm'>Export to Excel</button>
             </form>";
@@ -89,6 +89,30 @@ function showAppliedFilters($con, $filter_type, $year_from, $year_to, $date_from
             </div>
         </div>";
 }
+
+function renderViewButton($usertype, $userid, $row, $shared) {
+    $docid = $row['document_id'];
+    $viewBtn = "<a href='view_details.php?id={$docid}' target='_blank' class='btn btn-warning btn-sm'><span class='fa fa-eye'></span></a>";
+
+    if ($usertype === 'Admin') {
+        return $viewBtn;
+    }
+
+    if ($usertype === 'Manager') {
+        if ($row['user_id'] == $userid || $row['confidential'] === 'No' || $shared > 0) {
+            return $viewBtn;
+        }
+    }
+
+    if ($usertype === 'Staff') {
+        if ($row['confidential'] === 'No') {
+            return $viewBtn;
+        }
+    }
+
+    return ""; 
+}
+
 
 ?>
 
@@ -200,6 +224,9 @@ function showAppliedFilters($con, $filter_type, $year_from, $year_to, $date_from
                                 $where = count($conditions) > 0 ? "WHERE " . implode(" AND ", $conditions) : "";
 
                                 $sql = "SELECT 
+                                            di.document_id,
+                                            di.user_id,
+                                            di.confidential,
                                             di.document_date,
                                             c.company_name,
                                             l.location_name,
@@ -224,12 +251,13 @@ function showAppliedFilters($con, $filter_type, $year_from, $year_to, $date_from
                                                 <table class='table table-hover table-bordered' id='tbl_record' style='width:100%'>
                                                     <thead class='th-header'>
                                                         <tr>
-                                                            <th style='width:10px;'>Document Date</th>
-                                                            <th style='width:10px;'>Company</th>
-                                                            <th style='width:150px;'>Location</th>
-                                                            <th >Department</th>
+                                                            <th>Document Date</th>
+                                                            <th>Company</th>
+                                                            <th>Location</th>
+                                                            <th>Department</th>
                                                             <th>Document Type</th>
-                                                            <th style='width:150px;'>Subject</th>
+                                                            <th>Subject</th>
+                                                            <th>Action</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>";
@@ -242,17 +270,19 @@ function showAppliedFilters($con, $filter_type, $year_from, $year_to, $date_from
                                                                 'Department' => $row['department_name'],
                                                                 'Document Type' => $row['type_name'],
                                                                 'Subject' => $row['subject']
-                                                            ];
+                                                            ]; 
+                                                            $shared = getShared($con, $userid, $row['document_id']);
                                                             echo "<tr>
                                                                     <td>" . $row['document_date'] . "</td>
                                                                     <td>" . $row['company_name'] . "</td>
-                                                                    <td>" . $row['location_name'] . "</td>
-                                                                    <td>" . $row['department_name'] . "</td>
-                                                                    <td>" . $row['type_name'] . "</td>
-                                                                    <td>" . $row['subject'] . "</td>
+                                                                    <td style='width:25%'>" . $row['location_name'] . "</td>
+                                                                    <td style='width:15%'>" . $row['department_name'] . "</td>
+                                                                    <td style='width:10%'>" . $row['type_name'] . "</td>
+                                                                    <td style='width:50%'>" . $row['subject'] . "</td>
+                                                                    <td align='center'>" . renderViewButton($usertype, $userid, $row, $shared) . "</td>
                                                                   </tr>";   
                                                         }
-                                                        echo "
+                                                        echo "  
                                                     </tbody>
                                                 </table>
                                             </div>
