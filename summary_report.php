@@ -14,12 +14,25 @@ $document_type = isset($_POST['document_type']) ? $_POST['document_type'] : '';
 $department    = isset($_POST['department']) ? $_POST['department'] : '';
 
 function getYears($con) {
-    $years = array();
-    $res = mysqli_query($con, "SELECT DISTINCT YEAR(document_date) as year FROM document_info ORDER BY year DESC");
-    while ($r = mysqli_fetch_assoc($res)) {
-        $years[] = $r['year'];
-    }
-    return $years;
+   $years = array();
+        $sql = "
+            SELECT DISTINCT SUBSTRING(document_date, 1, 4) AS year 
+            FROM document_info 
+            WHERE 
+                LENGTH(document_date) >= 10 
+                AND document_date REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+            ORDER BY year DESC
+        ";
+        
+        $res = mysqli_query($con, $sql);
+        while ($r = mysqli_fetch_assoc($res)) {
+            $year = $r['year'];
+            if (preg_match('/^\d{4}$/', $year)) {
+                $years[] = $year;
+            }
+        }
+
+        return $years;
 }
 
 function getOptions($con, $table, $id_col, $name_col, $selected_val) {
