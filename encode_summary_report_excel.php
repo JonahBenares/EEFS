@@ -45,7 +45,7 @@ if (isset($_POST['export_excel']) && !empty($_SESSION['export_data'])) {
     echo "
         <tr>
             <th>Date</th>
-            <th>Total</th>
+            <th>Total Encode</th>
         </tr>";
 
     // Table rows

@@ -126,7 +126,7 @@ function showAppliedFilters($date_from, $date_to) {
                                                             <thead class='th-header'>
                                                                 <tr>
                                                                     <th>Date</th>
-                                                                    <th>Total</th>
+                                                                    <th>Total Encode</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>";
