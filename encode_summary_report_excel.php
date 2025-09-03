@@ -24,7 +24,7 @@ if (isset($_POST['export_excel']) && !empty($_SESSION['export_data'])) {
     // Company header
     echo "
         <tr>
-            <td colspan='4' style='font-size:16px; font-weight:bold; text-align: center'>
+            <td colspan='3' style='font-size:16px; font-weight:bold; text-align: center'>
                 Central Negros Power Reliability, Inc. <br>
                 (Main Office) 88 Corner Rizal-Mabini Sts. Bacolod City <br>
                 (Plant Site) Purok San Jose, Barangay Calumangan, Bago City <br>
@@ -32,11 +32,11 @@ if (isset($_POST['export_excel']) && !empty($_SESSION['export_data'])) {
             </td>
         </tr>
         <tr>
-            <td colspan='4' style='font-size:20px; font-weight:bold; text-align: center'>EEFS Encode Summary Report</td>
+            <td colspan='3' style='font-size:20px; font-weight:bold; text-align: center'>EEFS Encode Summary Report</td>
         </tr>
         <tr>
-            <td colspan='2'>Date Exported: {$exportDate}</td>
-            <td colspan='2'>Exported By: {$exportedBy}</td>
+            <td colspan='1'>Date Exported: {$exportDate}</td>
+            <td colspan='1'>Exported By: {$exportedBy}</td>
         </tr>
     ";
 
@@ -45,7 +45,6 @@ if (isset($_POST['export_excel']) && !empty($_SESSION['export_data'])) {
     echo "
         <tr>
             <th>Date</th>
-            <th>Department</th>
             <th>Document Type</th>
             <th>Total</th>
         </tr>";
@@ -54,7 +53,6 @@ if (isset($_POST['export_excel']) && !empty($_SESSION['export_data'])) {
     foreach ($filteredData as $row) {
         echo "<tr>
                 <td>" . date("Y-m-j", strtotime($row['Date'])) . "</td>
-                <td>{$row['Department']}</td>
                 <td>{$row['Document Type']}</td>
                 <td>{$row['Total']}</td>
               </tr>";

@@ -8,12 +8,6 @@ $userid = $_SESSION['userid'];
 $date_from = isset($_POST['date_from']) ? $_POST['date_from'] : '';
 $date_to = isset($_POST['date_to']) ? $_POST['date_to'] : '';
 
-function getDepartmentName($con, $id) {
-    $q = mysqli_query($con, "SELECT department_name FROM department WHERE department_id = '$id' LIMIT 1");
-    if ($r = mysqli_fetch_assoc($q)) return $r['department_name'];
-    return 'N/A';
-}
-
 function getDocumentTypeName($con, $id) {
     $q = mysqli_query($con, "SELECT type_name FROM document_type WHERE type_id = '$id' LIMIT 1");
     if ($r = mysqli_fetch_assoc($q)) return $r['type_name'];
@@ -103,10 +97,6 @@ function showAppliedFilters($date_from, $date_to) {
                                             <input type="date" name="date_to" value="<?php echo $date_to; ?>" class="form-control">
                                     </div>
 
-                                    <div class="col-sm-1 d-flex align-items-end">
-                                        <label for="department" class="form-label" style="color:white">Filter</label>
-                                        <button name="search_summary" type="submit" id="filterBtn" class="btn btn-primary w-100" style="height: 34px;width:100%">Filter</button>
-                                    </div>
                                 </form>
                                 <?php
                                     if (isset($_POST['search_summary'])) {
@@ -120,15 +110,13 @@ function showAppliedFilters($date_from, $date_to) {
 
                                         $sql = "SELECT 
                                                     DATE(di.logged_date) AS log_date,
-                                                    d.department_name,
                                                     t.type_name,
                                                     COUNT(*) AS total
                                                 FROM document_info di
-                                                LEFT JOIN department d ON di.department_id = d.department_id
                                                 LEFT JOIN document_type t ON di.type_id = t.type_id
                                                 $where
-                                                GROUP BY log_date, d.department_name, t.type_name
-                                                ORDER BY log_date ASC, d.department_name ASC, t.type_name ASC";
+                                                GROUP BY log_date, t.type_name
+                                                ORDER BY log_date ASC, t.type_name ASC";
 
                                         $res = mysqli_query($con, $sql);
                                         
@@ -141,7 +129,6 @@ function showAppliedFilters($date_from, $date_to) {
                                                             <thead class='th-header'>
                                                                 <tr>
                                                                     <th>Date</th>
-                                                                    <th>Department</th>
                                                                     <th>Document Type</th>
                                                                     <th>Total</th>
                                                                 </tr>
@@ -152,13 +139,11 @@ function showAppliedFilters($date_from, $date_to) {
 
                                                                     $_SESSION['export_data'][] = [
                                                                         'Date' => $row['log_date'],
-                                                                        'Department' => $row['department_name'],
                                                                         'Document Type' => $row['type_name'],
                                                                         'Total' => $row['total']
                                                                     ];
                                                                     echo '<tr>';
                                                                     echo '<td>' . date("Y-m-j", strtotime($row['log_date'])) . '</td>';
-                                                                    echo '<td>' . $row['department_name'] . '</td>';
                                                                     echo '<td>' . $row['type_name'] . '</td>';
                                                                     echo '<td>' . $row['total'] . '</td>';
                                                                     echo '</tr>';
