@@ -49,21 +49,21 @@
 			<em class="fa fa-line-chart">&nbsp;</em> Reports <span data-toggle="collapse" href="#reports" class="icon pull-right"><em class="fa fa-plus"></em></span>
 			</a>
 			<ul class="children collapse" id="reports">
-				<li>
+				<!-- <li>
 					<a class="" href="summary_report.php">
 						<span class="fa fa-list">&nbsp;</span> Summary Report
 					</a>
-				</li>
+				</li> -->
 				<li>
 					<a class="" href="summary_annual.php">
 						<span class="fa fa-list">&nbsp;</span> Annual Summary
 					</a>
 				</li>
-				<li>
+				<!-- <li>
 					<a class="" href="encode_summary.php">
 						<span class="fa fa-list">&nbsp;</span> Encode Summary
 					</a>
-				</li>
+				</li> -->
 			</ul>
 		</li>
 		<li><a href="logout.php"><em class="fa fa-power-off">&nbsp;</em> Logout</a></li>
