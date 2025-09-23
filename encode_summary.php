@@ -67,12 +67,12 @@ function showAppliedFilters($date_from, $date_to) {
                     <li><a href="http://localhost/systems/eefs/dashboard.php">
                         <em class="fa fa-home"></em>
                     </a></li>
-                    <li class="active">Encode Summary</li>
+                    <li class="active">Encode Report</li>
                 </ol>
             </div>
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Encode Summary</h1>
+                    <h1 class="page-header">Encode Report</h1>
                 </div>
             </div>
             <div class="row">

@@ -7,7 +7,7 @@ if (isset($_POST['export_excel']) && !empty($_SESSION['export_data'])) {
     $filters = isset($_SESSION['export_filters']) ? $_SESSION['export_filters'] : [];
 
     header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=summary_export.xls");
+    header("Content-Disposition: attachment; filename=annual_report_export.xls");
 
     echo "<table border='1'>";
 
@@ -22,7 +22,7 @@ if (isset($_POST['export_excel']) && !empty($_SESSION['export_data'])) {
             </td>
         </tr>
         <tr>
-            <td colspan='4' style='font-size:20px; font-weight:bold; text-align: center'>EEFS Annual Summary Report</td>
+            <td colspan='4' style='font-size:20px; font-weight:bold; text-align: center'>EEFS Annual Report</td>
         </tr>
         <tr>
             <td colspan='2'>Date Exported: {$exportDate}</td>

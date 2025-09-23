@@ -112,12 +112,12 @@ $department = isset($_POST['department']) ? $_POST['department'] : '';
                     <li><a href="http://localhost/systems/eefs/dashboard.php">
                         <em class="fa fa-home"></em>
                     </a></li>
-                    <li class="active">Annual Summary Report </li>
+                    <li class="active">Annual Report </li>
                 </ol>
             </div>
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">Annual Summary Report</h1>
+                    <h1 class="page-header">Annual Report</h1>
                 </div>
             </div>
             <div class="row">
