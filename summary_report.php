@@ -14,25 +14,12 @@ $document_type = isset($_POST['document_type']) ? $_POST['document_type'] : '';
 $department    = isset($_POST['department']) ? $_POST['department'] : '';
 
 function getYears($con) {
-   $years = array();
-        $sql = "
-            SELECT DISTINCT SUBSTRING(document_date, 1, 4) AS year 
-            FROM document_info 
-            WHERE 
-                LENGTH(document_date) >= 10 
-                AND document_date REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
-            ORDER BY year DESC
-        ";
-        
-        $res = mysqli_query($con, $sql);
-        while ($r = mysqli_fetch_assoc($res)) {
-            $year = $r['year'];
-            if (preg_match('/^\d{4}$/', $year)) {
-                $years[] = $year;
-            }
-        }
-
-        return $years;
+    $years = array();
+    $res = mysqli_query($con, "SELECT DISTINCT YEAR(document_date) as year FROM document_info ORDER BY year DESC");
+    while ($r = mysqli_fetch_assoc($res)) {
+        $years[] = $r['year'];
+    }
+    return $years;
 }
 
 function getOptions($con, $table, $id_col, $name_col, $selected_val) {
@@ -154,7 +141,7 @@ function renderViewButton($usertype, $userid, $row, $shared) {
                                 <!-- Filter Type -->
                                 <div class="col-sm-2">
                                     <label for="filter_type">Filter Type</label>
-                                    <select name="filter_type" id="filter_type" class="form-control">
+                                    <select name="filter_type" id="filter_type" class="form-control" required>
                                         <option value="">Select</option>
                                         <option value="annual" <?php echo ($filter_type=='annual' ? 'selected' : ''); ?>>Annual</option>
                                         <option value="custom" <?php echo ($filter_type=='custom' ? 'selected' : ''); ?>>Custom Range</option>
@@ -221,7 +208,7 @@ function renderViewButton($usertype, $userid, $row, $shared) {
                             if (isset($_POST['search_doc'])) {
                                 echo showAppliedFilters($con, $filter_type, $year_from, $year_to, $date_from, $date_to, $document_type, $department);
 
-                                $conditions = array();
+                                $conditions = [];
 
                                 if ($filter_type == 'annual') {
                                     if ($year_from != '') $conditions[] = "YEAR(document_date) >= '" . $year_from . "'";
@@ -231,8 +218,13 @@ function renderViewButton($usertype, $userid, $row, $shared) {
                                     if ($date_to != '') $conditions[] = "document_date <= '" . $date_to . "'";
                                 }
 
-                                if ($document_type != '') $conditions[] = "type_id = '" . $document_type . "'";
-                                if ($department != '') $conditions[] = "department_id = '" . $department . "'";
+                                if ($document_type != '' && is_numeric($document_type)) {
+                                    $conditions[] = "di.type_id = " . intval($document_type);
+                                }
+
+                                if ($department != '' && is_numeric($department)) {
+                                    $conditions[] = "di.department_id = " . intval($department);
+                                }
 
                                 $where = count($conditions) > 0 ? "WHERE " . implode(" AND ", $conditions) : "";
 
