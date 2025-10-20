@@ -59,11 +59,11 @@
 						<span class="fa fa-list">&nbsp;</span> Annual Report
 					</a>
 				</li>
-				<!-- <li>
+				<li>
 					<a class="" href="encode_summary.php">
 						<span class="fa fa-list">&nbsp;</span> Encode Report
 					</a>
-				</li> -->
+				</li>
 			</ul>
 		</li>
 		<li><a href="logout.php"><em class="fa fa-power-off">&nbsp;</em> Logout</a></li>
