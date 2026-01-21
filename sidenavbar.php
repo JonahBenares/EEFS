@@ -42,9 +42,9 @@
 		</li>
 		<li><a href="newrecord_first.php"><em class="fa fa-plus">&nbsp;</em> New Record</a></li>
 		<li><a href="viewrecord.php"><em class="fa fa-eye">&nbsp;</em> View Record</a></li>
-		<?php if($_SESSION['usertype'] == "Admin") { ?>
+		<!-- <?php if($_SESSION['usertype'] == "Admin") { ?>
 			<li><a href="backup_data.php"><em class="fa fa-database">&nbsp;</em> Database</a></li>
-		<?php } ?>
+		<?php } ?> -->
 		<li class="parent"><a data-toggle="collapse" href="#reports">
 			<em class="fa fa-line-chart">&nbsp;</em> Reports <span data-toggle="collapse" href="#reports" class="icon pull-right"><em class="fa fa-plus"></em></span>
 			</a>

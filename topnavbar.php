@@ -8,9 +8,9 @@
 			<a class="navbar-brand" href="#"><span style="color:#009e2a;">Energreen</span>e-Filing System</a>
 			<ul class="nav navbar-top-links navbar-right">
 				<li class="dropdown">
-					<a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+					<!-- <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
 						<a href="backup.php" style = "margin-top:-41px;" class = "btn btn-primary"><em class = "fa fa-download"></em>Back-up Database</a>
-					</a>					
+					</a>	 -->				
 				</li>
 			</ul>
 		</div>
