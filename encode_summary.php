@@ -7,8 +7,9 @@ $userid = $_SESSION['userid'];
 
 $date_from = isset($_POST['date_from']) ? $_POST['date_from'] : '';
 $date_to = isset($_POST['date_to']) ? $_POST['date_to'] : '';
+$username = isset($_POST['username']) ? $_POST['username'] : '';
 
-function showAppliedFilters($date_from, $date_to) {
+function showAppliedFilters($date_from, $date_to, $username) {
     $filters = [];
 
     if (!empty($date_from)) {
@@ -17,6 +18,10 @@ function showAppliedFilters($date_from, $date_to) {
 
     if (!empty($date_to)) {
         $filters[] = "Date To: " . date("Y-m-j", strtotime($date_to));
+    }
+
+    if (!empty($username)) {
+        $filters[] = "Username: " . htmlspecialchars($username);
     }
 
     if (empty($filters)) return ''; // nothing to show
@@ -33,6 +38,7 @@ function showAppliedFilters($date_from, $date_to) {
                 <input type='hidden' name='export_excel' value='1'>
                 <input type='hidden' name='date_from' value='" . htmlspecialchars($date_from) . "'>
                 <input type='hidden' name='date_to' value='" . htmlspecialchars($date_to) . "'>
+                <input type='hidden' name='username' value='" . htmlspecialchars($username) . "'>
                 <button type='submit' class='btn btn-success btn-sm'>Export to Excel</button>
             </form>";
     }
@@ -81,6 +87,28 @@ function showAppliedFilters($date_from, $date_to) {
                         <div class="panel- bg-light p-3 rounded-top" style="padding: 20px 20px; border-bottom: 1px solid #ccc;">
                             <div class="main container-fluid">
                                 <form method="post" class="row gx-3 gy-2 align-items-end">
+                                    <!-- <div class="col-sm-2">
+                                        <label for="username">User</label>
+                                            <input type="text" name="user" value="<?php echo $username; ?>" class="form-control">
+                                    </div> -->
+                                    
+                                    <div class="col-sm-2">
+                                        <label for="username">User</label>
+                                        <select name="username" class="form-control">
+                                            <option value="">All Users</option>
+                                            <?php
+                                            $sqlUsers = "SELECT username FROM users ORDER BY username ASC";
+                                            $resUsers = mysqli_query($con, $sqlUsers);
+
+                                            while ($u = mysqli_fetch_assoc($resUsers)) {
+                                                $selected = ($u['username'] === $username) ? 'selected' : '';
+                                                echo "<option value='" . htmlspecialchars($u['username']) . "' $selected>"
+                                                    . htmlspecialchars($u['username']) .
+                                                "</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
                                     <div class="col-sm-2">
                                         <label for="year_from">Date From</label>
                                             <input type="date" name="date_from" value="<?php echo $date_from; ?>" class="form-control">
@@ -98,11 +126,12 @@ function showAppliedFilters($date_from, $date_to) {
                                 </form>
                                 <?php
                                     if (isset($_POST['search_summary'])) {
-                                        echo showAppliedFilters($date_from, $date_to);
+                                        echo showAppliedFilters($date_from, $date_to, $username);
 
                                         $conditions = [];
                                         if (!empty($date_from)) $conditions[] = "DATE(di.logged_date) >= '" . $date_from . "'";
                                         if (!empty($date_to))   $conditions[] = "DATE(di.logged_date) <= '" . $date_to . "'";
+                                        if (!empty($username))   $conditions[] = "u.username = '" . mysqli_real_escape_string($con, $username) . "'";
 
                                         $where = count($conditions) > 0 ? "WHERE " . implode(" AND ", $conditions) : "";
 
@@ -110,7 +139,7 @@ function showAppliedFilters($date_from, $date_to) {
                                                     DATE(di.logged_date) AS log_date,
                                                     COUNT(*) AS total
                                                 FROM document_info di
-                                                
+                                                INNER JOIN users u ON u.user_id = di.user_id
                                                 $where
                                                 GROUP BY log_date
                                                 ORDER BY log_date ASC";

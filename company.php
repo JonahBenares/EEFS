@@ -52,7 +52,7 @@
 											<td><?php echo $row['company_name'];?></td>
 											<td>
 												<button name="button" class="btn btn-info btn-xs" value="update" onClick="updateComp(<?php echo $row['company_id']; ?>)"><span class="fa fa-pencil-square-o"></span></button>
-												<a onclick="confirmationDelete(this);return false;" href='delete_comp.php?id=<?php echo $row['company_id']; ?>' class="btn btn-xs btn-danger  btn-fill edf" title='Delete Company' alt='Delete Company'><span class="fa fa-times"></span></a>
+												<!-- <a onclick="confirmationDelete(this);return false;" href='delete_comp.php?id=<?php echo $row['company_id']; ?>' class="btn btn-xs btn-danger  btn-fill edf" title='Delete Company' alt='Delete Company'><span class="fa fa-times"></span></a> -->
 											</td>
 										</tr>
 										<?php } ?>
