@@ -141,10 +141,15 @@
 									</tr>
 									<tr>
 										<td colspan="2">
-											<p class="p_remarks"> 
+											<!-- <p class="p_remarks"> 
 												<span><?php $notes = str_replace("*", "<br>*", $row['remarks']); 
 												echo $notes;?></span> 
-											</p>
+											</p> -->
+											<p class="p_remarks">
+									            <span>
+									                <?php echo nl2br($row['remarks']); ?>
+									            </span>
+									        </p>
 										</td>
 									</tr>
 								</table>

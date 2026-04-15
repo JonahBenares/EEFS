@@ -49,216 +49,189 @@ if(isset($_GET['deleteattach'])){
     }
     
 }
+$doc_id = $_GET['docid'] ?? 0;
+
+$attachments = [];
+
+    $sql = mysqli_query($con, "
+        SELECT attach_id, attach_file, attach_remarks
+        FROM document_attach
+        WHERE document_id = '$doc_id'
+    ");
+
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $attachments[] = [
+            "id" => $row['attach_id'],
+            "name" => $row['attach_file'],
+            "remarks" => $row['attach_remarks']
+        ];
+    }
 ?>
 <link href="css/newrecord.css" rel="stylesheet">
 <script src="js/jquery-1.12.4.js"></script>
 <script src="js/bootstrap.min.js"></script> 
 <script type="text/javascript" src="js/jquery.js"></script> 
 <script>
+function showToast(message, type = "success") {
+    let toast = document.getElementById("toast");
 
-	function showFileSize() {
+    // if (!toast) return console.error("Toast element not found!");
 
-        var input, file;
-     
+    // normalize type (optional safety)
+    if (type === "added") type = "success";
+    if (type === "updated") type = "updated";
 
-        if (!window.FileReader) {
-            bodyAppend("p", "The file API isn't supported on this browser yet.");
-            return;
-        }
-        counter = document.getElementById('counter').value;
-        counterX = document.getElementById('counterX').value;
-       
-        var counter_error=0;
-        if(counterX===''){
-            ctr =  counter;
-        } 
-        else{
-            counterX_val = document.getElementById('counterX').value;
-            ctr =  counterX_val;
-        }
+    toast.className = "toast " + type;
+    toast.innerText = message;
 
-        if(ctr==1){
-            act = document.getElementById('p_acti1');
-            fileact = act.files[0];
-            if(typeof fileact !== 'undefined'){
-                if(fileact.size > 500000000){
-                document.getElementById("certBox1").innerHTML="Error: Picture size is too big. Max file size is 50mb.";
-                counter_error++;
-                }
-            }
-        } 
-        else if(ctr>=2){
-    	    for(x=1;x<=ctr;x++){
-    	        act = document.getElementById('p_acti'+x);
-    	        fileact = act.files[0];
-    	        if(typeof fileact !== 'undefined'){
-    	         	if(fileact.size > 500000000){
-    		          document.getElementById('certBox'+x).innerHTML="Error: Picture size is too big. Max file size is 50mb.";
-    		          counter_error++;
-    	          	}
-    	       	}
-    	    }
-        }
-       
-      
-        if(counter_error==0){
+    // restart animation
+    void toast.offsetWidth;
 
-            var frm = new FormData();
-          
-         
-                if(counterX===''){
-                    ctr =  counter;
-                } else{
-                    counterX_val = document.getElementById('counterX').value;
-                    ctr =  counterX_val;             
-                }
+    toast.style.opacity = "1";
+    toast.style.transform = "translateX(-50%) translateY(0)";
 
-          
-            frm.append('counter', counter);
-            frm.append('counterX', counterX);
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(-50%) translateY(-20px)";
+    }, 2500);
+}
 
-            if(ctr==1){
-               act = document.getElementById('p_acti1');
-               attachname1 = document.getElementById('attach_name1').value;
-               attachid1 = document.getElementById('attach_id1').value;
-               frm.append('attach_file1', act.files[0]);
-               frm.append('attach_name1', attachname1);
-               frm.append('attach_id1', attachid1);
-                doc_id = document.getElementById('doc_id').value;
-        	     frm.append('doc_id', doc_id);
-            } 
-            else if(ctr>=2){
-        	    for(x=1;x<=ctr;x++){
-        	       act = document.getElementById('p_acti'+x);
-                   attachname1 = document.getElementById('attach_name'+x).value;
-                   attachid1 = document.getElementById('attach_id'+x).value;
-        	       frm.append('attach_file'+x, act.files[0]);
-        	       frm.append('attach_name'+x, attachname1);
-                   frm.append('attach_id'+x, attachid1);
-        	    }
-        	     doc_id = document.getElementById('doc_id').value;
-        	     frm.append('doc_id', doc_id);
-            } 
+function showFileSize() {
 
-            var company =document.getElementById('company').value;
-            frm.append('company', company);
-            var doc_date =document.getElementById('doc_date').value;
-            frm.append('doc_date', doc_date);
-            var location =document.getElementById('location').value;
-            frm.append('location', location);
-            var doc_type =document.getElementById('doc_type').value;
-            frm.append('doc_type', doc_type);
-            var department =document.getElementById('department').value;
-            frm.append('department', department);
-            var subject =document.getElementById('subject').value;
-            frm.append('subject', subject);
-            var sender_comp =document.getElementById('sender_comp').value;
-            frm.append('sender_comp', sender_comp);
-            var sender_person =document.getElementById('sender_person').value;
-            frm.append('sender_person', sender_person);
-            var add_comp =document.getElementById('add_comp').value;
-            frm.append('add_comp', add_comp);
-            var add_person =document.getElementById('add_person').value;
-            frm.append('add_person', add_person);
-            var signatory =document.getElementById('signatory').value;
-            frm.append('signatory', signatory);
-            var copy_type = $("input[name='copy_type']:checked").val();
-            frm.append('copy_type', copy_type);
-
-            var confidential = $("input[name='confidential']:checked").val();
-            frm.append('confidential', confidential);
-
-            var share1 =document.getElementById('shareuser1').value;
-            frm.append('share1', share1);
-
-            var share2 =document.getElementById('shareuser2').value;
-            frm.append('share2', share2);
-
-            var share3 =document.getElementById('shareuser3').value;
-            frm.append('share3', share3);
-
-            var remarks =document.getElementById('remarks').value;
-            frm.append('remarks', remarks);
-       
-
-            if(doc_date==''){
-                $("#doc_date").focus();
-                $("#date_msg").show();
-                $("#date_msg").html("Document date field must not be empty.");
-            } else if(subject==''){
-                $("#subject").focus();
-                $("#date_msg").hide();
-                $("#subj_msg").show();
-                $("#subj_msg").html("Subject field must not be empty.");
-            } else if(typeof copy_type=='undefined'){
-                $("#copy_type").focus();
-                $("#date_msg").hide();
-                $("#subj_msg").hide();
-                $("#copy_msg").show();
-                $("#copy_msg").html("Please choose type of copy.");
-            } else if(typeof confidential=='undefined'){
-                $("#confidential").focus();
-                $("#date_msg").hide();
-                $("#subj_msg").hide();
-                $("#copy_msg").hide();
-                $("#confi_msg").show();
-                $("#confi_msg").html("Is this document confidential or not? Please choose.");
-            }else {
-                 $('#content').hide();
-                document.getElementById("loader").style.display = "block";
-                $.ajax({
-                    type: 'POST',
-                    url: "insert_record.php",
-                    data: frm,
-                    contentType: false,
-                    processData: false,
-                    cache: false,
-                    success: function(output){
-                        var output= output.trim();
-                        if(output=='ext'){
-                            alert('Error: File extension error.')
-                        } else if(output=='error'){
-                         alert('Error: There was an error in uploading your files.')
-                        } else {
-                            alert('Record successfully updated!');
-                            window.location = 'viewrecord.php';
-                        }
-                   }
-                }); 
-            }
-        }
+    if (!window.FileReader) {
+        alert("File API not supported");
+        return;
     }
 
-	$(function() {
-         var ctrx = document.getElementById('counter').value
-   
+    let frm = new FormData();
 
-        if(ctrx == 0){
-            var activityDiv = $('#p_activity');
-        } else {
-            var activityDiv = $('#p_activity1');
-        }
-        var ii = document.getElementById('counter').value;
-        
-		$('#addActivity').live('click', function() {
-            ii++;
-           
-		    $('<div class = "acti'+ii+'"><div class="row"><div for="p_certs" class="col-lg-3"></div><div class="col-lg-3"><input type="file" name="attach_file'+ii+'" id="p_acti'+ii+'" class="btn btn-sm btn-normal " style="width:100%" ><div id="certBox'+ii+'" class="acti"></div></div><div for = "name_certs" class="col-lg-3"><input type="name" name="attach_name'+ii+'" id="attach_name'+ii+'" class="form-control" style="width:100%;height:35px;margin-bottom:5px;" placeholder="Remarks"></div><div class="col-lg-3"><a href="#" class="btn btn-primary btn-sm btn-fill" id="addActivity">+</a> || <a href="#" class="btn btn-danger btn-sm btn-fill" id="remActivity">x</a></div></div></div>').appendTo(activityDiv);
-		    
-               document.getElementById("counterX").value = ii;
-               
-                $('<input type="hidden" id="attach_id'+ii+'" name="attach_id'+ii+'" value="" />').appendTo(activityDiv);
-                return false;
-		});
-		$('#remActivity').live('click', function() { 
-            if( ii >= 2 ) {
-              
-                $("div").remove(".acti" + ii);
-                  ii--;
+        let seen = new Set();
+
+        document.querySelectorAll(".row").forEach(row => {
+
+            let fileInput = row.querySelector(".fileReplace");
+            let remarkInput = row.querySelector(".attach-name");
+            let existingIdInput = row.querySelector("input[name='existing_attach_id[]']");
+            let keepInput = row.querySelector("input[name^='existing_keep']");
+
+            let remark = remarkInput ? remarkInput.value : "";
+
+            // =========================
+            // EXISTING FILE
+            // =========================
+            if (existingIdInput) {
+
+                let id = existingIdInput.value;
+
+                frm.append("existing_attach_id[]", id);
+                frm.append(`existing_keep[${id}]`, keepInput.value);
+                frm.append(`attach_name_existing[${id}]`, remark);
+
+                // ✅ if user selected replacement file
+                if (fileInput && fileInput.files.length > 0) {
+                    frm.append(`attach_file_existing[${id}]`, fileInput.files[0]);
+                }
+
+            } else {
+
+                // =========================
+                // NEW FILE
+                // =========================
+                if (fileInput && fileInput.files.length > 0) {
+
+                    let file = fileInput.files[0];
+
+                    let key = file.name + file.size + file.lastModified;
+                    if (seen.has(key)) return;
+                    seen.add(key);
+
+                    frm.append("attach_file[]", file);
+                    frm.append("attach_name[]", remark);
+                }
+            }
+        });
+
+    // =========================
+    // BASIC DATA
+    // =========================
+    frm.append("doc_id", document.getElementById("doc_id").value);
+    frm.append("company", document.getElementById("company").value);
+    frm.append("doc_date", document.getElementById("doc_date").value);
+    frm.append("location", document.getElementById("location").value);
+    frm.append("doc_type", document.getElementById("doc_type").value);
+    frm.append("department", document.getElementById("department").value);
+    frm.append("subject", document.getElementById("subject").value);
+    frm.append("sender_comp", document.getElementById("sender_comp").value);
+    frm.append("sender_person", document.getElementById("sender_person").value);
+    frm.append("add_comp", document.getElementById("add_comp").value);
+    frm.append("add_person", document.getElementById("add_person").value);
+    frm.append("signatory", document.getElementById("signatory").value);
+    frm.append("remarks", document.getElementById("remarks").value);
+
+    let copy_type = $("input[name='copy_type']:checked").val();
+    let confidential = $("input[name='confidential']:checked").val();
+
+    frm.append("copy_type", copy_type || "");
+    frm.append("confidential", confidential || "");
+
+    frm.append("share1", document.getElementById("shareuser1").value);
+    frm.append("share2", document.getElementById("shareuser2").value);
+    frm.append("share3", document.getElementById("shareuser3").value);
+
+    // =========================
+    // VALIDATION
+    // =========================
+    if (!frm.get("doc_date")) return alert("Document date required");
+    if (!frm.get("subject")) return alert("Subject required");
+    if (!copy_type) return alert("Select copy type");
+    if (!confidential) return alert("Select confidential option");
+
+    // =========================
+    // AJAX
+    // =========================
+    $("#content").hide();
+    document.getElementById("loader").style.display = "block";
+
+    $.ajax({
+        type: "POST",
+        url: "insert_record.php",
+        data: frm,
+        contentType: false,
+        processData: false,
+        cache: false,
+        success: function (output) {
+
+            output = output.trim();
+            let parts = output.split("|");
+            let status = parts[0];
+            let id = parts[1];
+
+            if (status === "added") {
+
+                showToast("Record successfully added!", "added");
+
+                setTimeout(() => {
+                    window.location = "view_details.php?id=" + id;
+                }, 3000);
+
             } 
-            return false;
-		});
+            else if (status === "updated") {
+
+                showToast("Record successfully updated!", "updated");
+
+                setTimeout(() => {
+                    window.location = "view_details.php?id=" + id;
+                }, 3000);
+
+            } 
+            else {
+
+                showToast("Unknown response: " + output, "error");
+                console.log(output);
+            }
+        }
     });
+}
 </script>
 <script>
 $(document).ready(function(){
@@ -393,10 +366,57 @@ $(document).ready(function(){
         box-shadow: 0 1px 10px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(115, 115, 115, 0.1)!important;
         border:1px solid darkgrey;min-height:600px;max-height:5000px;margin:0px;
     }
+
+    .to-delete input,
+    .to-delete .attach-name {
+        background: #f1f1f1;
+        pointer-events: none;
+    }
+
+    .row.deleted .col-lg-6,
+    .row.deleted .col-lg-5 {
+        filter: grayscale(100%);
+        opacity: 0.5;
+    }
+
+    .row.deleted .button-col {
+        filter: none;
+        opacity: 1;
+    }
+
+    .toast {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-20px);
+        background: #333;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 6px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        z-index: 9999;
+        font-size: 14px;
+        min-width: 200px;
+        text-align: center;
+    }
+
+    .toast.success {
+        background: #28a745; /* green */
+    }
+
+    .toast.updated {
+        background: #ffc107; /* yellow */
+        color: #000;
+    }
+
+    .toast.error {
+        background: #dc3545;
+    }
 </style>
 <body>
-
-
+<div id="toast" class="toast"></div>
 	<?php include('navbars.php');?>
     <div id="loader" style="display:none">
         <figure class="one"></figure>
@@ -598,92 +618,37 @@ $(document).ready(function(){
     	                                    <label class="control-label">Remarks:</label>
     	                                    <textarea type="text" rows="20" name = "remarks" id="remarks" class="form-control" style="width:100%" ><?php echo (isset($_GET['docid']) ? $fetch_details['remarks'] : ''); ?></textarea>
     	                                </div>
-    	                               <?php
-    	                                    $sql2 = mysqli_query($con,"SELECT * FROM document_attach WHERE document_id = '$docid'");
-    	                                    $row_num = $sql2->num_rows;
-                                            $tmp_attach = $con->query("SELECT * FROM document_attach WHERE document_id = '$docid'");
-                                            $rows_attach = $tmp_attach->num_rows;                               
-                                            if($row_num==0) {
-                                        ?>
-                                <div id = "p_activity">
-                                    <div class="row" >
-                                        <div for="p_acti" class="col-lg-3">Attach Files:</div>
-                                        <div class="col-lg-3">
-                                            <input type="file" name="attach_file1" id="p_acti1" class="btn btn-sm btn-normal " style="width:100%">
-                                        </div>
-                                        <div class="col-lg-3">
-                                            <input type="name" name="attach_name1" id="attach_name1" class="form-control" style="width:100%;height:35px;margin-bottom:5px;" placeholder="Remarks" > 
-                                            <input type = "hidden" value = "1" id = "counter" name = "counter">
-                                        </div>                         
-                                        <div class="col-lg-3">
-                                            <a href="#" class="btn btn-primary btn-sm btn-fill" id="addActivity">+</a> || 
-                                            <a href="#" class="btn btn-danger btn-sm btn-fill" id="remActivity">x</a>
-                                        </div>
                                     </div>
-                                      <input type = "hidden" value = "0" id = "attach_id1" name = "attach_id1">
-                                    <div class = "row">
-                                    	<div class = "col-lg-4"></div> 
-                                        <div class = "col-lg-6">
-                                        	<div id='certBox1' class='acti'></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php } if($row_num>0) { 
-                                    $r=1;
-                                    while($fetch_attach=$tmp_attach->fetch_array()) { ?>
-                                    <div id = "p_activity"  >
-                                    <div class="row" >
-                                        <div for="p_acti" class="col-lg-3">Attach Files:</div>
-                                        <div class="col-lg-3">
-                                            <input type="file" name="attach_file<?php echo $r; ?>" id="p_acti<?php echo $r; ?>" class="btn btn-sm btn-normal " style="width:100%" >
-                                                   <?php if(!empty($fetch_attach['attach_file'])){
-                                                       $res = explode(".",$fetch_attach['attach_file']);
-                                                       $ext_resume = $res[1]; 
-                                                      if($ext_resume == 'png' || $ext_resume == 'jpg' || $ext_resume == 'jpeg' || $ext_resume == 'JPG' || $ext_resume == 'JPEG' || $ext_resume == 'PNG'){  ?>
-                                                     <a name="upload/<?php echo $fetch_attach['attach_file']; ?>" style = "cursor:pointer;margin-left:10px"  id="bone<?php echo $r; ?>">
-                                                      <?php echo (empty($docid) ? '' : $fetch_attach['attach_file']); ?>
-                                                    </a> <a href="?deleteattach&attid=<?php echo $fetch_attach['attach_id']; ?>&docid=<?php echo $_GET['docid']; ?>" onclick="return confirm('Are you sure?');"  style="color:red; text-decoration: none">&nbsp<span class="fa fa-times"></span></a>
+                                    <div class="col-lg-12">
+                                        <label style="font-weight:bold; display:block; margin-bottom:5px;">
+                                            Attach Files:
+                                        </label>
+                                        <div id="dropArea"
+                                            style="
+                                                border: 3px dashed #999;
+                                                padding: 60px 20px;
+                                                text-align: center;
+                                                cursor: pointer;
+                                                margin-bottom: 15px;
+                                                border-radius: 10px;
+                                                background-color: #fafafa;
+                                                font-size: 18px;
+                                                font-weight: bold;
+                                                color: #555;
+                                                transition: 0.2s;
+                                            "
+                                            onmouseover="this.style.backgroundColor='#f0f0f0'"
+                                            onmouseout="this.style.backgroundColor='#fafafa'">
 
-                                                    <div onclick="closeModal()">    
-                                                        <div id="cone<?php echo $r; ?>" class="modal">
-                                                            <span class="close" onclick="closeModal()">&times;</span>
-                                                            <img class="modal-content" id="mone<?php echo $r; ?>">
-                                                            <div id="lone<?php echo $r; ?>"></div>
-                                                        </div>
-                                                    </div>    
-                                                    <?php } else { ?>
-                                                        <a href="upload/<?php echo $fetch_attach['attach_file']; ?>"  class='display'>
-                                                      <?php echo (empty($docid) ? '' : $fetch_attach['attach_file']); ?>
-                                                       </a>
-                                                    <?php } 
-                                                    } ?>
-                                                                                                   
-
-
-                                                   <input type='hidden' name='res_ext' id = 'res_ext' value="<?php echo $ext_resume; ?>">
-                                               
-                                            
+                                            📁 Click or Drag & Drop files here
+                                            <br>
+                                            <small style="font-weight: normal; font-size: 14px; color: #888;">
+                                                You can drop multiple files
+                                            </small>
                                         </div>
-                                        <div class="col-lg-3">
-                                            <input type="name" name="attach_name<?php echo $r; ?>" id="attach_name<?php echo $r; ?>" class="form-control" style="width:100%;height:35px;margin-bottom:5px;" value="<?php echo $fetch_attach['attach_remarks']; ?>" > 
-                                        </div>                                
-                                        <div class="col-lg-3">
-                                            <a href="#" class="btn btn-primary btn-sm btn-fill" id="addActivity">+</a> || 
-                                            <a href="#" class="btn btn-danger btn-sm btn-fill" id="remActivity">x</a>
-                                        </div>
+                                        <div id="fileList"></div>
                                     </div>
-                                    <div class = "row">
-                                        <div class = "col-lg-4"></div>
-                                        <div class = "col-lg-6">
-                                            <div id='certBox1' class='acti'></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <input type = "hidden" value = "<?php echo $fetch_attach['attach_id']; ?>" id = "attach_id<?php echo $r; ?>" name = "attach_id<?php echo $r; ?>">
-                                <input type = "hidden" value = "<?php echo $rows_attach; ?>" id = "counter" name = "counter">
-                                    <?php
-                                    $r++; } ?>
-                                <?php } ?>
+                                
                                 <div id = "p_activity1" >
                                 </div>
                                 <input type = "hidden" name = "counterX" id='counterX'>
@@ -734,7 +699,7 @@ $(document).ready(function(){
 
     }
 
-    var res_ext = document.getElementById('res_ext').value;
+    var res_ext = document.getElementById('res_ext')?.value || '';
 
 if(res_ext =='jpg' || res_ext =='png' || res_ext =='jpeg' || res_ext =='JPG' || res_ext =='PNG' || res_ext =='JPEG' ){
       var count=document.getElementById('counter').value;
@@ -792,4 +757,332 @@ if(res_ext =='jpg' || res_ext =='png' || res_ext =='jpeg' || res_ext =='JPG' || 
             }
         })
     }
+</script>
+<script type="text/javascript">
+    function validateFiles() {
+        hasFileError = false;
+        fileErrorMsg.innerHTML = "";
+        submitButton.disabled = false;
+
+        document.querySelectorAll(".row").forEach(row => {
+
+            let fileInput = row.querySelector(".fileReplace");
+
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                let file = fileInput.files[0];
+
+                // 🔴 SIZE CHECK (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    hasFileError = true;
+                    fileErrorMsg.innerHTML = "This file exceed 10MB limit.";
+                }
+            }
+        });
+
+        if (hasFileError) {
+            submitButton.disabled = true;
+        }
+    }
+</script>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function () {
+
+    // =========================
+    // GLOBAL VARIABLES
+    // =========================
+    let submitButton = document.getElementById("submitButton");
+    let fileErrorMsg = document.getElementById("fileErrorMsg");
+    let hasFileError = false;
+
+    function isGenericFileName(name) {
+        if (!name) return true;
+
+        name = name.toLowerCase();
+        name = name.replace(/\.[^/.]+$/, "");
+        name = name.replace(/[\s_\-()]/g, "");
+
+        return /^img\d*$/.test(name);
+    }
+
+    let dropArea = document.getElementById("dropArea");
+    let fileList = document.getElementById("fileList");
+
+    if (!dropArea || !fileList) return;
+
+    // =========================
+    // FILE PICKER
+    // =========================
+    let hiddenInput = document.createElement("input");
+    hiddenInput.type = "file";
+    hiddenInput.multiple = true;
+    hiddenInput.style.display = "none";
+    document.body.appendChild(hiddenInput);
+
+    hiddenInput.addEventListener("change", function () {
+        handleFiles(this.files);
+        this.value = "";
+    });
+
+    dropArea.addEventListener("click", () => hiddenInput.click());
+
+    dropArea.addEventListener("dragover", e => {
+        e.preventDefault();
+        dropArea.style.background = "#f1f1f1";
+    });
+
+    dropArea.addEventListener("dragleave", () => {
+        dropArea.style.background = "#fff";
+    });
+
+    dropArea.addEventListener("drop", e => {
+        e.preventDefault();
+        dropArea.style.background = "#fff";
+        handleFiles(e.dataTransfer.files);
+    });
+
+    let addedFiles = new Set();
+
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+
+            let key = file.name + file.size + file.lastModified;
+
+            if (addedFiles.has(key)) return;
+
+            addedFiles.add(key);
+
+            addNewRow(file);
+        });
+
+        validateFiles();
+    }
+
+    // =========================
+    // VALIDATION (UNCHANGED LOGIC)
+    // =========================
+        function validateFiles() {
+            hasFileError = false;
+
+            if (fileErrorMsg) fileErrorMsg.innerHTML = "";
+            if (submitButton) submitButton.disabled = false;
+
+            document.querySelectorAll(".row").forEach(row => {
+
+                let fileInput = row.querySelector(".fileReplace");
+                let errorBox = row.querySelector(".file-row-error");
+
+                if (errorBox) errorBox.innerHTML = "";
+                let box = row.querySelector(".file-box");
+
+                if (box) {
+                    box.style.border = "";
+                    box.style.background = "";
+                }
+
+                // ❗ IMPORTANT FIX: check ALL files, not only [0]
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+
+                    Array.from(fileInput.files).forEach(file => {
+
+                        if (file.size > 10 * 1024 * 1024) {
+
+                            hasFileError = true;
+
+                            if (errorBox) {
+                                errorBox.innerHTML +=
+                                    `❌ "${file.name}" exceeds 10MB (${(file.size / 1024 / 1024).toFixed(2)} MB)<br>`;
+                            }
+                        }
+                    });
+                }
+            });
+
+            if (hasFileError && submitButton) {
+                submitButton.disabled = true;
+            }
+        }
+
+    // =========================
+    // NEW FILE ROW
+    // =========================
+    function addNewRow(file) {
+
+        let base = file.name.replace(/\.[^/.]+$/, "");
+        let autoRemarks = isGenericFileName(base) ? "" : base;
+        let row = document.createElement("div");
+        row.className = "row";
+        row.style.marginBottom = "5px";
+
+        row.innerHTML = `
+            <div class="col-lg-6">
+                <button type="button" class="btn btn-primary btn-sm chooseFile">Choose File</button>
+                <span class="fileLabel">${file.name}</span>
+
+                <input type="file" name="attach_file[]" class="fileReplace" style="display:none;">
+            <div class="file-row-error text-danger small"></div>
+            </div>
+
+            <div class="col-lg-5">
+                <input type="text" name="attach_name[]" 
+                       class="form-control form-control-sm attach-name" 
+                       value="${autoRemarks}">
+            </div>
+
+            <div class="col-lg-1">
+                <button type="button" class="btn btn-danger btn-sm removeBtn">X</button>
+            </div>
+        `;
+
+        let fileInput = row.querySelector(".fileReplace");
+        let label = row.querySelector(".fileLabel");
+        let btn = row.querySelector(".chooseFile");
+        let textInput = row.querySelector(".attach-name");
+
+        // =========================
+        // FIX: SAFE CHECK (NO CRASH)
+        // =========================
+        if (btn) {
+            btn.onclick = () => fileInput.click();
+        }
+
+        let dt = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;
+
+        row.dataset.fileKey = file.name + file.size + file.lastModified;
+
+        fileInput.addEventListener("change", function () {
+            let f = this.files[0];
+
+            if (f) {
+                label.textContent = f.name;
+
+                let base = f.name.replace(/\.[^/.]+$/, "");
+                if (!isGenericFileName(base)) {
+                    textInput.value = base;
+                } else {
+                    textInput.value = ""; // ✅ FORCE CLEAR for img, img123, etc.
+                }
+            }
+
+            validateFiles();
+        });
+
+        row.querySelector(".removeBtn").onclick = () => {
+            row.remove();
+            validateFiles();
+        };
+
+        fileList.appendChild(row);
+    }
+
+    // =========================
+    // EXISTING FILES
+    // =========================
+    let existingFiles = <?= json_encode($attachments ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+
+    if (Array.isArray(existingFiles)) {
+        existingFiles.forEach(f => addExistingRow(f));
+    }
+
+    function addExistingRow(file) {
+
+        if (!file || !file.id) return;
+
+        let filename = file.name || "";
+        let remarks = file.remarks || "";
+
+        let row = document.createElement("div");
+        row.className = "row";
+        row.style.marginBottom = "5px";
+
+        row.innerHTML = `
+            <div class="col-lg-6">
+                <button type="button" class="btn btn-primary btn-sm chooseFile">Choose File</button>
+                <span class="fileLabel">${filename}</span>
+
+                <input type="file" name="attach_file[]" class="fileReplace" style="display:none;">
+                <div class="file-row-error text-danger small"></div>
+
+                <input type="hidden" name="existing_attach_id[]" value="${file.id}">
+                <input type="hidden" name="existing_keep[${file.id}]" value="1">
+            </div>
+
+            <div class="col-lg-5">
+                <input type="text"
+                       name="attach_name[${file.id}]"
+                       value="${remarks}"
+                       class="form-control form-control-sm attach-name">
+            </div>
+
+            <div class="col-lg-1 button-col">
+                <button type="button" class="btn btn-danger btn-sm btn-delete">X</button>
+            </div>
+        `;
+
+        let fileInput = row.querySelector(".fileReplace");
+        let chooseBtn = row.querySelector(".chooseFile");
+        let label = row.querySelector(".fileLabel");
+        let textInput = row.querySelector(".attach-name");
+
+        let keepInput = row.querySelector(`input[name="existing_keep[${file.id}]"]`);
+        let deleteBtn = row.querySelector(".btn-delete");
+
+        // =========================
+        // FIX: SAFE CHECK (NO CRASH)
+        // =========================
+        if (chooseBtn) {
+            chooseBtn.onclick = () => fileInput.click();
+        }
+
+        fileInput.addEventListener("change", function () {
+            let f = this.files[0];
+
+            if (f) {
+                label.textContent = f.name;
+
+                let base = f.name.replace(/\.[^/.]+$/, "");
+
+                if (isGenericFileName(base)) {
+                    textInput.value = ""; // 🚨 FORCE CLEAR IF IMG FILE
+                } else {
+                    textInput.value = base;
+                }
+            }
+
+            validateFiles();
+        });
+
+        deleteBtn.onclick = () => {
+
+            if (keepInput.value === "1") {
+
+                keepInput.value = "0";
+
+                row.classList.add("deleted");
+
+                deleteBtn.textContent = "↺";
+                deleteBtn.classList.remove("btn-danger");
+                deleteBtn.classList.add("btn-success");
+
+            } else {
+
+                keepInput.value = "1";
+
+                row.classList.remove("deleted");
+
+                deleteBtn.textContent = "X";
+                deleteBtn.classList.remove("btn-success");
+                deleteBtn.classList.add("btn-danger");
+            }
+
+            validateFiles();
+        };
+
+        fileList.appendChild(row);
+    }
+
+    validateFiles();
+
+});
 </script>

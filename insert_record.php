@@ -2,258 +2,290 @@
 include 'includes/connection.php';
 date_default_timezone_set("Asia/Taipei");
 session_start();
-$userid= $_SESSION['userid'];
 
-    foreach($_POST as $var=>$value)
-    $$var = mysqli_real_escape_string($con,$value);
-	
-	
-	if($doc_id==0){
-   	    $sql5 = mysqli_query($con,"SELECT MAX(document_id) as docid From document_info");
-        $fetch = $sql5->fetch_array();
-        $docid = $fetch['docid']+1;
+$userid = $_SESSION['userid'] ?? 0;
 
-   		$get_type = $con->query("SELECT type_id FROM document_type WHERE type_name = '$doc_type'");
+if (!$userid) {
+    echo "unauthorized";
+    exit;
+}
 
-   		$rows_type = $get_type->num_rows;
-   		if($rows_type==0){
-   			$get_exist =  $con->query("SELECT MAX(type_id) as typeid FROM document_type");
-   			$fetch_exist = $get_exist->fetch_array();
-   			$typeid = $fetch_exist['typeid'] + 1;
+function post($key) {
+    return $_POST[$key] ?? '';
+}
 
-   			$insert_type = $con->query("INSERT INTO document_type (type_id, type_name) VALUES ('$typeid', '$doc_type')");
-   		} else {
-   			$fetch_type = $get_type->fetch_array();
-   			$typeid = $fetch_type['type_id'];
+/* =========================
+   INPUTS
+========================= */
+$doc_id        = (int)post('doc_id');
+$doc_type      = post('doc_type');
+$location      = post('location');
+$doc_date      = post('doc_date');
+$company       = post('company');
+$department    = post('department');
+$subject       = post('subject');
+$sender_comp   = post('sender_comp');
+$sender_person = post('sender_person');
+$add_comp      = post('add_comp');
+$add_person    = post('add_person');
+$copy_type     = post('copy_type');
+$confidential  = post('confidential');
+$signatory     = post('signatory');
+$remarks       = post('remarks');
 
-   		}
+$now = date('Y-m-d H:i:s');
 
+/* ✅ ADDED (GLOBAL COUNTER + TIMESTAMP) */
+$timestamp = time();
+$i = 0;
+$safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $subject);
 
+/* =========================
+   TYPE (GET/INSERT)
+========================= */
+$stmt = $con->prepare("SELECT type_id FROM document_type WHERE type_name = ?");
+$stmt->bind_param("s", $doc_type);
+$stmt->execute();
+$res = $stmt->get_result();
 
-      $get_location = $con->query("SELECT location_id FROM document_location WHERE location_name = '$location'");
-     // echo "SELECT location_id FROM document_location WHERE location_name = '$location'";
-      
-      $rows_location = $get_location->num_rows;
-      if($rows_location==0){
-        $get_exist1 =  $con->query("SELECT MAX(location_id) as locationid FROM document_location");
-        $fetch_exist1 = $get_exist1->fetch_array();
-        $locationid = $fetch_exist1['locationid'] + 1;
+if ($res->num_rows == 0) {
+    $q = $con->query("SELECT MAX(type_id) AS id FROM document_type");
+    $typeid = ($q->fetch_assoc()['id'] ?? 0) + 1;
 
-        $insert_location = $con->query("INSERT INTO document_location (location_id, location_name) VALUES ('$locationid', '$location')");
-      } else {
-        $fetch_location = $get_location->fetch_array();
-        $locationid = $fetch_location['location_id'];
+    $stmt = $con->prepare("INSERT INTO document_type (type_id, type_name) VALUES (?, ?)");
+    $stmt->bind_param("is", $typeid, $doc_type);
+    $stmt->execute();
+} else {
+    $typeid = $res->fetch_assoc()['type_id'];
+}
 
-      }
-   		
-   		$now = date('Y-m-d H:i:s');
-        $insert= $con->query("INSERT INTO document_info(document_id ,logged_date,document_date,company_id,location_id,user_id,type_id,department_id,subject,sender_company, sender_person,addressee_company, addressee_person, copy_type, confidential, signatory,remarks) VALUES ('$docid','$now','$doc_date','$company','$locationid','$userid','$typeid','$department','$subject','$sender_comp','$sender_person','$add_comp','$add_person','$copy_type', '$confidential','$signatory','$remarks')");
-    
-      
-      for($x=1;$x<=3;$x++){
-          $share='share'.$x;
-          $suser = $$share;
+/* =========================
+   LOCATION (GET/INSERT)
+========================= */
+$stmt = $con->prepare("SELECT location_id FROM document_location WHERE location_name = ?");
+$stmt->bind_param("s", $location);
+$stmt->execute();
+$res = $stmt->get_result();
 
-          if(!empty($suser)){
-            $insertshare= $con->query("INSERT INTO shared_document(document_id, user_id) VALUES ('$docid', '$suser')");
-          }
-      }
+if ($res->num_rows == 0) {
+    $q = $con->query("SELECT MAX(location_id) AS id FROM document_location");
+    $locationid = ($q->fetch_assoc()['id'] ?? 0) + 1;
 
-        
-        if(!isset($counterX) || $counterX == ''){
-            $ctrx = $counter;
-        } 
-        else{
-            $ctrx = $counterX;
-        }
-      
-        for($x=1; $x<=$ctrx;$x++){
-            $a="attach_file".$x;
-            if(!empty($_FILES[$a]["name"])){
-                $activity = $_FILES[$a]['tmp_name'];
-                $act = $_FILES[$a]["name"];
-                $name = 'attach_name'.$x;
-                $aname=$$name;
-                $a = explode(".", $act); //attach file
-                $ext = $a[1];
-                if($ext=='php'){
-                  echo "ext";
-                } else { 
-                  $afile = $subject."_".$userid.$x.".".$ext;
-                  //$url = "upload/" . $afile;
-                  move_uploaded_file($_FILES['attach_file'.$x]['tmp_name'], "upload/" . $afile);
-                  $filename = $_FILES["attach_file".$x]["tmp_name"];
-                  $update=mysqli_query($con,"INSERT INTO document_attach (document_id,attach_file,attach_remarks) VALUES ('$docid','$afile','$aname')");
-                    if($update){
-                      echo "ok";
-                    } else {
-                      echo "error";
-                    }
-                }
-                
-            }
-        }  
-    } else {
+    $stmt = $con->prepare("INSERT INTO document_location (location_id, location_name) VALUES (?, ?)");
+    $stmt->bind_param("is", $locationid, $location);
+    $stmt->execute();
+} else {
+    $locationid = $res->fetch_assoc()['location_id'];
+}
 
-    	$get_type = $con->query("SELECT type_id FROM document_type WHERE type_name = '$doc_type'");
+/* =========================
+   INSERT / UPDATE MAIN DOC
+========================= */
+if ($doc_id == 0) {
 
-   		$rows_type = $get_type->num_rows;
-   		if($rows_type==0){
-   			$get_exist =  $con->query("SELECT MAX(type_id) as typeid FROM document_type");
-   			$fetch_exist = $get_exist->fetch_array();
-   			$typeid = $fetch_exist['typeid'] + 1;
+    $q = $con->query("SELECT MAX(document_id) AS id FROM document_info");
+    $docid = ($q->fetch_assoc()['id'] ?? 0) + 1;
 
-   			$insert_type = $con->query("INSERT INTO document_type (type_id, type_name) VALUES ('$typeid', '$doc_type')");
-   		} else {
-   			$fetch_type = $get_type->fetch_array();
-   			$typeid = $fetch_type['type_id'];
+    $stmt = $con->prepare("
+        INSERT INTO document_info (
+            document_id, logged_date, document_date, company_id, location_id,
+            user_id, type_id, department_id, subject,
+            sender_company, sender_person, addressee_company, addressee_person,
+            copy_type, confidential, signatory, remarks
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    ");
 
-   		}
+    $stmt->bind_param(
+        "issiiisssssssssss",
+        $docid, $now, $doc_date, $company, $locationid,
+        $userid, $typeid, $department, $subject,
+        $sender_comp, $sender_person, $add_comp, $add_person,
+        $copy_type, $confidential, $signatory, $remarks
+    );
 
-      $get_location = $con->query("SELECT location_id FROM document_location WHERE location_name = '$location'");
+    $stmt->execute();
 
-      $rows_location = $get_location->num_rows;
-      if($rows_location==0){
-        $get_exist1 =  $con->query("SELECT MAX(location_id) as locationid FROM document_location");
-        $fetch_exist1 = $get_exist1->fetch_array();
-        $locationid = $fetch_exist1['locationid'] + 1;
+} else {
 
-        $insert_location = $con->query("INSERT INTO document_location (location_id, location_name) VALUES ('$locationid', '$location')");
-      } else {
-        $fetch_location = $get_location->fetch_array();
-        $locationid = $fetch_location['location_id'];
+    $docid = $doc_id;
 
-      }
+    $stmt = $con->prepare("
+        UPDATE document_info SET
+            logged_date=?,
+            document_date=?,
+            company_id=?,
+            location_id=?,
+            user_id=?,
+            type_id=?,
+            department_id=?,
+            subject=?,
+            sender_company=?,
+            sender_person=?,
+            addressee_company=?,
+            addressee_person=?,
+            copy_type=?,
+            confidential=?,
+            signatory=?,
+            remarks=?
+        WHERE document_id=?
+    ");
 
-    	$now = date('Y-m-d H:i:s');
-        $update = mysqli_query($con,"UPDATE document_info SET logged_date='$now',document_date='$doc_date',company_id='$company',location_id='$locationid', user_id='$userid',type_id='$typeid',department_id='$department',subject='$subject',sender_company='$sender_comp', sender_person='$sender_person',addressee_company='$add_comp',addressee_person='$add_person',copy_type='$copy_type', confidential = '$confidential', signatory='$signatory',remarks='$remarks' WHERE document_id = '$doc_id'");
-       
-          if(!isset($counterX) || $counterX == ''){
-            $ctrx = $counter;
-        } 
-        else{
-            $ctrx = $counterX;
-        }
-        
-        if($con->query("DELETE FROM shared_document WHERE document_id = '$doc_id'")){
-           for($x=1;$x<=3;$x++){
-          $share='share'.$x;
-          $suser = $$share;
-          if(!empty($suser)){
-              $insertshare= $con->query("INSERT INTO shared_document(document_id, user_id) VALUES ('$doc_id', '$suser')");
-          }
-         }
+    $stmt->bind_param(
+        "ssiiisssssssssssi",
+        $now, $doc_date, $company, $locationid,
+        $userid, $typeid, $department,
+        $subject, $sender_comp, $sender_person,
+        $add_comp, $add_person,
+        $copy_type, $confidential,
+        $signatory, $remarks,
+        $docid
+    );
 
-        }
-        
+    $stmt->execute();
+}
 
-        $getattach = $con->query("SELECT attach_id FROM document_attach WHERE document_id = '$doc_id'");
-        $rows_att=$getattach->num_rows;
-       
-       
-        if($rows_att==$ctrx){
-            for($x=1; $x<=$ctrx;$x++){
-                $a="attach_file".$x;
-                $name = 'attach_name'.$x;
-                $aname=$$name;
-                $attid = 'attach_id'.$x;
-                $attachid=$$attid;
-                if(!empty($_FILES[$a]["name"])){
-                    $activity = $_FILES[$a]['tmp_name'];
-                    $act = $_FILES[$a]["name"];
-                    
-                    $a = explode(".", $act); //attach file
-                    $ext = $a[1];
-                    if($ext=='php'){
-                      echo "ext";
-                    } else {
-                      $afile = $subject."_".$userid.$x.".".$ext;
-                      move_uploaded_file($_FILES['attach_file'.$x]['tmp_name'], "upload/" . $afile);
-                      //  $url = "upload/" . $afile;
-                        $filename = $_FILES["attach_file".$x]["tmp_name"];
-                        $update=mysqli_query($con,"UPDATE document_attach SET attach_file = '$afile', attach_remarks='$aname' WHERE attach_id='$attachid'");
-                      if($update){
-                         echo "ok";
-                      } else {
-                        echo "error";
-                      }
+/* =========================
+   SHARING (SAFE)
+========================= */
+$stmt = $con->prepare("DELETE FROM shared_document WHERE document_id = ?");
+$stmt->bind_param("i", $docid);
+$stmt->execute();
 
-                    }
-                }
-                if(!empty($aname)){
-                      $update=mysqli_query($con,"UPDATE document_attach SET attach_remarks='$aname' WHERE attach_id='$attachid'");
-                      if($update){
-                         echo "ok";
-                      } else {
-                        echo "error";
-                      }
-                     
-                }
-            }
-        } else {
-            
-            for($x=1; $x<=$ctrx;$x++){
-                $a="attach_file".$x;
-                 $name = 'attach_name'.$x;
-                 $attid = 'attach_id'.$x;
-                 $aname=$$name;
-                 $attachid=$$attid;
-                if(!empty($_FILES[$a]["name"])){
-                    $activity = $_FILES[$a]['tmp_name'];
-                    $act = $_FILES[$a]["name"];
-                   
-                    $a = explode(".", $act); //attach file
-                    $ext = $a[1];
-                    $afile = $subject."_".$userid.$x.".".$ext;
+for ($x = 1; $x <= 3; $x++) {
+    $share = post("share$x");
 
-                    $getex=$con->query("SELECT attach_id FROM document_attach WHERE attach_id = '$attachid'");
-                    $rowex=$getex->num_rows;
-                    if($rowex>0){
-                          if($ext=='php'){
-                            echo "ext";
-                          } else {
-                          move_uploaded_file($_FILES['attach_file'.$x]['tmp_name'], "upload/" . $afile);
-                           // $url = "upload/" . $afile;
-                            $filename = $_FILES["attach_file".$x]["tmp_name"];
-                            $update=mysqli_query($con,"UPDATE document_attach SET attach_file = '$afile', attach_remarks='$aname' WHERE attach_id='$attachid'");
-                            if($update){
-                                echo "ok";
-                            } else {
-                                echo "error";
-                            }
-                        }
-                        
-                    } else {
-                      if($ext=='php'){
-                            echo "ext";
-                      } else {
-                           move_uploaded_file($_FILES['attach_file'.$x]['tmp_name'], "upload/" . $afile);
-                           // $url = "upload/" . $afile;
-                            $filename = $_FILES["attach_file".$x]["tmp_name"];
-                            $update=mysqli_query($con,"INSERT INTO document_attach (document_id,attach_file,attach_remarks) VALUES ('$doc_id','$afile','$aname')");
-                          if($update){
-                             echo "ok";
-                            } else {
-                              echo "error";
-                            }
-                      }
-                   
-                   
-                    }
-                }
-                if(!empty($aname)){
-                      $update=mysqli_query($con,"UPDATE document_attach SET attach_remarks='$aname' WHERE attach_id='$attachid'");
-                      if($update){
-                       echo "ok";
-                      } else {
-                        echo "error";
-                      }
-                    //  echo json_encode("UPDATE tmp_attachment_logs SET attach_name='$aname' WHERE attach_id='$attachid'");
-                }
-                
-            }
-        } 
-        
+    if (!empty($share)) {
+        $stmt = $con->prepare("
+            INSERT INTO shared_document (document_id, user_id)
+            VALUES (?, ?)
+        ");
+        $stmt->bind_param("ii", $docid, $share);
+        $stmt->execute();
     }
+}
+
+/* =========================
+   FILE UPLOAD (NEW)
+========================= */
+if (!empty($_FILES['attach_file']['name'][0])) {
+
+    $files = $_FILES['attach_file'];
+    $names = $_POST['attach_name'] ?? [];
+
+    for ($x = 0; $x < count($files['name']); $x++) {
+
+        if (!empty($files['name'][$x])) {
+
+            $tmp  = $files['tmp_name'][$x];
+            $orig = $files['name'][$x];
+            $aname = $names[$x] ?? '';
+
+            $ext = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
+
+            if ($ext === 'php') {
+                echo "invalid file";
+                exit;
+            }
+
+            $afile = $safeName . "_" . $userid . "_" . $timestamp . "_" . (++$i) . "." . $ext;
+
+            move_uploaded_file($tmp, "upload/" . $afile);
+
+            $stmt = $con->prepare("
+                INSERT INTO document_attach (document_id, attach_file, attach_remarks)
+                VALUES (?, ?, ?)
+            ");
+            $stmt->bind_param("iss", $docid, $afile, $aname);
+            $stmt->execute();
+        }
+    }
+}
+
+/* =========================
+   EXISTING FILE UPDATE / DELETE
+========================= */
+if (!empty($_POST['existing_attach_id'])) {
+
+    foreach ($_POST['existing_attach_id'] as $attach_id) {
+
+        $attach_id = (int)$attach_id;
+
+        $keep = $_POST['existing_keep'][$attach_id] ?? 1;
+        $name = $_POST['attach_name_existing'][$attach_id] ?? '';
+
+        if ($keep == "1") {
+
+            if (!empty($_FILES['attach_file_existing']['name'][$attach_id])) {
+
+                $tmp  = $_FILES['attach_file_existing']['tmp_name'][$attach_id];
+                $orig = $_FILES['attach_file_existing']['name'][$attach_id];
+                $ext  = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
+
+                if ($ext === 'php') {
+                    echo "invalid file";
+                    exit;
+                }
+
+                $stmt = $con->prepare("SELECT attach_file FROM document_attach WHERE attach_id=?");
+                $stmt->bind_param("i", $attach_id);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                $row = $res->fetch_assoc();
+
+                if ($row) {
+                    $oldPath = "upload/" . $row['attach_file'];
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                /* ✅ FIXED: USE GLOBAL COUNTER */
+                $afile = $safeName . "_" . $userid . "_" . $timestamp . "_" . (++$i) . "." . $ext;
+
+                move_uploaded_file($tmp, "upload/" . $afile);
+
+                $stmt = $con->prepare("
+                    UPDATE document_attach
+                    SET attach_file=?, attach_remarks=?
+                    WHERE attach_id=?
+                ");
+                $stmt->bind_param("ssi", $afile, $name, $attach_id);
+                $stmt->execute();
+
+            } else {
+
+                $stmt = $con->prepare("
+                    UPDATE document_attach
+                    SET attach_remarks = ?
+                    WHERE attach_id = ?
+                ");
+                $stmt->bind_param("si", $name, $attach_id);
+                $stmt->execute();
+            }
+
+        } else {
+
+            $stmt = $con->prepare("SELECT attach_file FROM document_attach WHERE attach_id = ?");
+            $stmt->bind_param("i", $attach_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $row = $res->fetch_assoc();
+
+            if ($row) {
+                $filePath = "upload/" . $row['attach_file'];
+                if (file_exists($filePath)) unlink($filePath);
+            }
+
+            $stmt = $con->prepare("DELETE FROM document_attach WHERE attach_id = ?");
+            $stmt->bind_param("i", $attach_id);
+            $stmt->execute();
+        }
+    }
+}
+
+/* =========================
+   RESPONSE
+========================= */
+echo ($doc_id == 0) ? "added|" . $docid : "updated|" . $docid;
+exit;
 ?>
-      
