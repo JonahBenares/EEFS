@@ -49,28 +49,29 @@ if(isset($_GET['deleteattach'])){
     }
     
 }
-$doc_id = $_GET['docid'] ?? 0;
+    $doc_id = isset($_GET['docid']) ? $_GET['docid'] : 0;
 
-$attachments = [];
+    $attachments = array();
 
-    $sql = mysqli_query($con, "
-        SELECT attach_id, attach_file, attach_remarks
-        FROM document_attach
-        WHERE document_id = '$doc_id'
-    ");
+    if ($doc_id != 0) {
+        $sql = mysqli_query($con, "
+            SELECT attach_id, attach_file, attach_remarks
+            FROM document_attach
+            WHERE document_id = '$doc_id'
+        ");
 
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $attachments[] = [
-            "id" => $row['attach_id'],
-            "name" => $row['attach_file'],
-            "remarks" => $row['attach_remarks']
-        ];
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $attachments[] = array(
+                "id" => $row['attach_id'],
+                "name" => $row['attach_file'],
+                "remarks" => $row['attach_remarks']
+            );
+        }
     }
 ?>
 <link href="css/newrecord.css" rel="stylesheet">
 <script src="js/jquery-1.12.4.js"></script>
-<script src="js/bootstrap.min.js"></script> 
-<script type="text/javascript" src="js/jquery.js"></script> 
+<script src="js/bootstrap.min.js"></script>
 <script>
 function showToast(message, type = "success") {
     let toast = document.getElementById("toast");
@@ -759,32 +760,6 @@ if(res_ext =='jpg' || res_ext =='png' || res_ext =='jpeg' || res_ext =='JPG' || 
     }
 </script>
 <script type="text/javascript">
-    function validateFiles() {
-        hasFileError = false;
-        fileErrorMsg.innerHTML = "";
-        submitButton.disabled = false;
-
-        document.querySelectorAll(".row").forEach(row => {
-
-            let fileInput = row.querySelector(".fileReplace");
-
-            if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                let file = fileInput.files[0];
-
-                // 🔴 SIZE CHECK (10MB)
-                if (file.size > 10 * 1024 * 1024) {
-                    hasFileError = true;
-                    fileErrorMsg.innerHTML = "This file exceed 10MB limit.";
-                }
-            }
-        });
-
-        if (hasFileError) {
-            submitButton.disabled = true;
-        }
-    }
-</script>
-<script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function () {
 
     // =========================
@@ -979,7 +954,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // EXISTING FILES
     // =========================
-    let existingFiles = <?= json_encode($attachments ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+    let existingFiles = <?php echo json_encode($attachments); ?>;
 
     if (Array.isArray(existingFiles)) {
         existingFiles.forEach(f => addExistingRow(f));

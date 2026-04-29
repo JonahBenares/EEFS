@@ -15,6 +15,111 @@
 	}*/
 ?>
 <link href="css/view_details.css" rel="stylesheet">
+<style>
+.viewer-container{
+    text-align:center;
+    margin-bottom:15px;
+    padding:15px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    background:#fafafa;
+}
+
+/* IMAGE BOX */
+.viewer-image{
+    width:100%;
+    height:450px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#fff;
+    border:1px solid #e5e7ec;
+    border-radius:8px;
+    overflow:hidden;
+}
+
+.viewer-image img{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+}
+
+/* REMARK */
+.viewer-remark{
+    margin-top:12px;
+    font-size:16px;
+    font-weight:bold;
+    color:#333;
+    min-height:24px;
+}
+
+/* CONTROLS */
+.viewer-controls{
+    margin-top:10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+/* LEFT/RIGHT BUTTONS */
+.nav-btn{
+    background:#fff;
+    border:1px solid #ccc;
+    padding:6px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.2s;
+}
+
+.nav-btn:hover{
+    background:#28a745;
+    color:#fff;
+    border-color:#28a745;
+}
+
+/* CENTER BUTTONS */
+.center-controls{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    align-items:center;
+}
+
+/* THUMBNAILS */
+.thumb-container{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding-bottom:5px;
+}
+
+.thumb-box{
+    min-width:130px;
+    cursor:pointer;
+    text-align:center;
+}
+
+.thumb-img{
+    width:100%;
+    height:90px;
+    object-fit:cover;
+    border-radius:6px;
+    border:2px solid transparent;
+    transition:0.2s;
+}
+
+.thumb-box:hover .thumb-img{
+    border:2px solid #28a745;
+}
+
+.thumb-remark{
+    font-size:12px;
+    font-weight:600;
+    color:#555;
+    margin-top:3px;
+}
+</style>
 <body>
 	<?php include('navbars.php');?>
 	<div id="loader">
@@ -155,87 +260,91 @@
 								</table>
 							</div>
 							<div class="col-lg-6">
-								<div class="row" style="padding-left:15px">
-									<strong>Attatchment(s):</strong>
-									<div style="border-bottom:1px solid #e5e7ec;width:50%;margin-bottom:5px"></div>
-								</div>
-								<div class="row">
-									<?php
-										$cc=1;
-		                                $sql1 = mysqli_query($con,"SELECT * FROM document_attach WHERE document_id = '$row[document_id]'");
-		                                while ($row2 = mysqli_fetch_array($sql1)){    
-		                                $cert1=explode(".",$row2['attach_file']);
-		                                $attach2 = $cert1[1];
-		                                if($attach2=='png' || $attach2=='jpg' || $attach2 == 'jpeg' || $attach2 == 'PNG' || $attach2 == 'JPG' || $attach2 == 'JPEG'){
-		                            ?>
-									<div class="col-lg-3 col-md-4 col-xs-6 thumb animate-box ">
-		                                <div class="column thumbnail hover-shadow ">
-		                                    <img class="img-responsive" src="
-		                                    <?php 
-		                                        if (empty($row2['attach_file'])){
-		                                            echo 'upload/necs/gallery-icon-67820.png'; 
-		                                        }
-		                                        else{
-		                                            echo 'upload/'. $row2['attach_file'];
-		                                        }
-                                    		?>" alt="<?php echo $row2['attach_file'];?>"  onclick="openModal();currentSlide(<?php echo $cc; ?>)">
-		                                </div>
-		                              <!--   <h6><?php //echo $row2['attach_file'];?></h6> -->
-		                            </div>
-		                            <?php } else { ?>
-		                            	<div class="col-lg-3 col-md-4 col-xs-6 thumb animate-box ">
-		                            		<a class=" shadow" href='upload/<?php echo $row2['attach_file']; ?>' target='_blank'><img class="img-responsive" src='upload/necs/Treetog-I-Documents.ico'><h5 class="sas" style="color:#0087ff"><?php echo $row2['attach_file']; ?></h5></a>
-		                            	</div>
-		                            <?php } $cc++; } ?>
-		                            <div class="modal " id="mode">
-		                            	<!-- <center>
-		                            		<input class="btn btn-success btn-sm" type="button" value="Print Image"  onclick="printImg()" />
-		                            	</center> -->
-	                                    <a class="prev" id="show-previous-image" style="text-decoration: none;" onclick="plusSlides(-1)">Previous</a>
-	                                    <a id="show-next-image" class="next" style="text-decoration: none;" onclick="plusSlides(1)">Next</a>
-	                                    <div class="modal-dialog" onclick="closeModal()">
-	                                        <div class="modal-content">	                                        	
-	                                            <div class="modal-header">
-	                                                <button type="button" class="close" onclick="closeModal()">
-	                                                <span aria-hidden="true" style="color: #ad4a00;">×</span>
-	                                                <span class="sr-only">Close</span>
-	                                                </button>
-	                                                <br>
-	                                            </div>
-	                                                <?php
-								                      $aa = 1;
-								                      $sql1 = mysqli_query($con,"SELECT * FROM document_attach WHERE document_id = '$row[document_id]'");
-								                      $bb = mysqli_num_rows($sql1);
-								                      while ($row2 = mysqli_fetch_array($sql1)){ 
-								                      $att=explode(".",$row2['attach_file']);
-								                      $upload_att = $att[1];
-								                  	?>
+						    <div class="row" style="padding-left:15px">
+						        <strong>Attachment(s):</strong>
+						        <div style="border-bottom:1px solid #e5e7ec;width:100%;margin-bottom:10px"></div>
+						    </div>
 
-	                                            <div class="mySlides">
-	                                            	<h4 class="numbertext" style="font-weight: 600; font-size: 15px"><?php echo $aa.'/'.$bb ?>&nbsp-&nbsp<?php echo $row2['attach_file'];?> </h4>
-	                                            	<div >
-	                                            		<a class="btn btn-success btn-sm" type="button" target="_blank" href = '<?php echo 'upload/'. $row2['attach_file']; ?>'>Print Image</a>
-		                                                <img id="mainImg" src="<?php 
-									                      if (empty($row2['attach_file'])){
-									                          echo 'upload/necs/gallery-icon-67820.png'; 
-									                      } else{
-									                         if($upload_att == 'jpg' || $upload_att == 'png' || $upload_att == 'jpeg'  || $upload_att == 'PNG' || $upload_att == 'PNG' || $upload_att == 'JPG' || $upload_att == 'JPEG'){
-									                            echo 'upload/'. $row2['attach_file']; 
-									                           } else {
-									                            echo "upload/files.png";
-									                           }
-									                      }
-									                  ?>" style="width:100%">
-									              	</div>
-	                                            </div>
-	                                            <?php 
-								                  $aa++; 
-								                }?>   
-	                                        </div>
-	                                    </div>
-	                                </div> 
-								</div>
-							</div>
+						    <div class="row">
+						        <div class="col-lg-12">
+									<?php
+										$attachments = [];
+
+										$sql1 = mysqli_query($con,"SELECT * FROM document_attach WHERE document_id = '$row[document_id]'");
+										while ($row2 = mysqli_fetch_array($sql1)){    
+
+										    $file   = $row2['attach_file'];
+										    $remark = trim($row2['attach_remarks']);
+
+										    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+										    $isImage = in_array($ext, ['png','jpg','jpeg']);
+
+										    $filePath = "upload/".$file;
+
+										    if(empty($file) || !file_exists($filePath)){
+										        $filePath = "upload/files.png";
+										        $isImage = false;
+										    }
+
+										    $attachments[] = [
+										        'file' => $filePath,
+										        'remark' => $remark,
+										        'isImage' => $isImage
+										    ];
+										}
+
+										$attachCount = count($attachments);
+										?>
+
+									<!-- ================= VIEWER ================= -->
+									<div class="viewer-container">
+									    <div class="viewer-image" style="<?php echo ($attachCount == 1 ? 'height:70vh;' : ''); ?>">
+									        <img id="mainImage">
+									    </div>
+
+									    <div class="viewer-remark" id="mainRemark"></div>
+
+									    <div class="viewer-controls">
+
+									        <!-- LEFT BUTTON -->
+									        <?php if($attachCount > 1){ ?>
+									            <button class="nav-btn" onclick="prevImage()">&#10094; Prev</button>
+									        <?php } else { ?>
+									            <div></div>
+									        <?php } ?>
+
+									        <!-- CENTER ACTIONS -->
+									        <div class="center-controls">
+									            <button class="btn btn-success btn-sm" onclick="printImage()">Print</button>
+									            <a id="saveBtn" download class="btn btn-primary btn-sm">Save Photo</a>
+									        </div>
+
+									        <!-- RIGHT BUTTON -->
+									        <?php if($attachCount > 1){ ?>
+									            <button class="nav-btn" onclick="nextImage()">Next &#10095;</button>
+									        <?php } else { ?>
+									            <div></div>
+									        <?php } ?>
+
+									    </div>
+									</div>
+										<!-- ================= THUMBNAILS ================= -->
+										<?php if($attachCount > 1){ ?>
+										<div class="thumb-container">
+										    <?php foreach($attachments as $index => $att){ ?>
+										        <div class="thumb-box" onclick="showImage(<?php echo $index; ?>)">
+										            <img src="<?php echo $att['file']; ?>" class="thumb-img">
+
+										            <?php if(!empty($att['remark'])){ ?>
+										                <div class="thumb-remark"><?php echo $att['remark']; ?></div>
+										            <?php } ?>
+										        </div>
+										    <?php } ?>
+										</div>
+										<?php } ?>
+						        </div>
+						    </div>
+						</div>
 						</div>
 					</div>
 				</div>
@@ -288,5 +397,96 @@
 		  pwin = window.open(document.getElementById("mainImg").src,"_blank");
 		  // pwin.onload = function () {window.print();}
 		}
+</script>
+<script>
+let attachments = <?php echo json_encode($attachments); ?>;
+let currentFile = "";
+let currentIndex = 0;
+
+function showImage(index){
+    if(index < 0 || index >= attachments.length) return;
+
+    currentIndex = index;
+    let data = attachments[index];
+
+    currentFile = data.file;
+
+    document.getElementById('mainImage').src = data.file;
+    document.getElementById('saveBtn').href = data.file;
+
+    document.getElementById('mainRemark').innerText =
+        data.remark !== "" ? data.remark : "";
+}
+
+function prevImage(){
+    if(attachments.length <= 1) return;
+    if(currentIndex > 0){
+        showImage(currentIndex - 1);
+    }
+}
+
+function nextImage(){
+    if(attachments.length <= 1) return;
+    if(currentIndex < attachments.length - 1){
+        showImage(currentIndex + 1);
+    }
+}
+
+/* INIT */
+if(attachments.length > 0){
+    showImage(0);
+}
+
+function printImage(){
+    if(!currentFile) return;
+
+    let printWindow = window.open('', '_blank', 'width=900,height=600');
+
+    printWindow.document.open();
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Print Image</title>
+            <style>
+                @page { margin: 0; }
+                body {
+                    margin: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                }
+                img {
+                    max-width: 100%;
+                    max-height: 100%;
+                }
+            </style>
+        </head>
+        <body>
+            <img id="printImg" src="${currentFile}">
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+
+    let img = printWindow.document.getElementById('printImg');
+
+    img.onload = function () {
+        printWindow.focus();
+        printWindow.print();
+
+        // safer close after print dialog finishes
+        printWindow.onafterprint = function () {
+            printWindow.close();
+        };
+
+        // fallback in case onafterprint fails
+        setTimeout(() => {
+            if (!printWindow.closed) {
+                printWindow.close();
+            }
+        }, 2000);
+    };
+}
 </script>
 </html>
