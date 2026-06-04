@@ -489,4 +489,41 @@ function printImage(){
     };
 }
 </script>
+
+<script>
+$(document).ready(function(){
+
+    $('.viewer-image').css('position','relative');
+
+    if($('#zoomLens').length === 0){
+        $('.viewer-image').append('<div id="zoomLens"></div>');
+    }
+
+    $(document).on('mousemove', '#mainImage', function(e){
+
+        let lens = $('#zoomLens');
+        let img = $(this);
+
+        let rect = this.getBoundingClientRect();
+
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+
+        lens.show();
+
+        lens.css({
+            left: (x - 90) + 'px',
+            top: (y - 90) + 'px',
+            backgroundImage: 'url("' + img.attr('src') + '")',
+            backgroundSize: (rect.width * 2) + 'px ' + (rect.height * 2) + 'px',
+            backgroundPosition: (-x * 2 + 90) + 'px ' + (-y * 2 + 90) + 'px'
+        });
+    });
+
+    $(document).on('mouseleave', '#mainImage', function(){
+        $('#zoomLens').hide();
+    });
+
+});
+</script>
 </html>

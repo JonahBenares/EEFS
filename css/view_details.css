@@ -162,9 +162,24 @@
 	    margin-left: -60px;
 	}
 	img.hover-shadow {
-      transition: 0.3s
-    }
+    transition: 0.3s
+  }
+  .hover-shadow:hover {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
+  }
+  #mainImage{
+    cursor: zoom-in;
+  }
+  #zoomLens{
+    position:absolute;
+    width:180px;
+    height:180px;
+    border:2px solid #fff;
+    border-radius:50%;
+    box-shadow:0 0 10px rgba(0,0,0,.4);
+    pointer-events:none;
+    display:none;
+    background-repeat:no-repeat;
+    z-index:9999;
+  }
 
-    .hover-shadow:hover {
-      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
-    }
